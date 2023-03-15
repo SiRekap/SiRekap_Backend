@@ -14,10 +14,13 @@ func NewRouter() *gin.Engine {
 
 	health := new(controllers.HealthController)
 	auth := new(controllers.AuthController)
+	tps := new(controllers.TpsController)
 
-	router.GET("/health", health.Status)
+	router.GET("/healthz", health.GetHealthStatus)
 
 	router.POST("/register", auth.Register)
+
+	router.GET("/tps/:id", tps.GetTpsDetail)
 	// router.Use(middlewares.AuthMiddleware())
 
 	// v1 := router.Group("v1")

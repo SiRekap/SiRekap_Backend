@@ -1,12 +1,13 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type HealthController struct{}
 
-func (h HealthController) Status(c *gin.Context) {
-	c.String(http.StatusOK, "Working!")
+func (h HealthController) GetHealthStatus(c *gin.Context) {
+	c.String(http.StatusOK, "Connection success!")
 }
