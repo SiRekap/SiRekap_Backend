@@ -13,14 +13,38 @@ func NewRouter() *gin.Engine {
 	router.Use(gin.Recovery())
 
 	health := new(controllers.HealthController)
-	auth := new(controllers.AuthController)
+	// auth := new(controllers.AuthController)
 	tps := new(controllers.TpsController)
+	petugas := new(controllers.PetugasController)
+	formc := new(controllers.FormCController)
 
+	// Health
 	router.GET("/healthz", health.GetHealthStatus)
 
-	router.POST("/register", auth.Register)
+	// TPS
+	router.GET("/tps/:id_tps", tps.GetTpsDetail)
 
-	router.GET("/tps/:id", tps.GetTpsDetail)
+	// Petugas
+	router.POST("/register", petugas.RegisterPetugas)
+	router.POST("/register-pemeriksa", petugas.RegisterPemeriksa)
+
+	// Form C
+	router.GET("/formc/get-formc-administrasi-hlm-satu-proses", formc.GetFormCAdministrasiHlmSatuProses)
+	router.GET("/formc/get-formc-administrasi-hlm-satu-final", formc.GetFormCAdministrasiHlmSatuFinal)
+	router.GET("/formc/get-formc-administrasi-hlm-satu", formc.GetFormCAdministrasiHlmSatu)
+
+	router.POST("/formc/send-formc-administrasi-hlm-satu-proses", formc.SendFormCAdministrasiHlmSatuProses)
+	router.POST("/formc/send-formc-administrasi-hlm-satu-final", formc.SendFormCAdministrasiHlmSatuFinal)
+	router.POST("/formc/send-formc-administrasi-hlm-satu", formc.SendFormCAdministrasiHlmSatu)
+
+	router.GET("/formc/get-formc-administrasi-hlm-dua-proses", formc.GetFormCAdministrasiHlmDuaProses)
+	router.GET("/formc/get-formc-administrasi-hlm-dua-final", formc.GetFormCAdministrasiHlmDuaFinal)
+	router.GET("/formc/get-formc-administrasi-hlm-dua", formc.GetFormCAdministrasiHlmDua)
+
+	router.POST("/formc/send-formc-administrasi-hlm-dua-proses", formc.SendFormCAdministrasiHlmDuaProses)
+	router.POST("/formc/send-formc-administrasi-hlm-dua-final", formc.SendFormCAdministrasiHlmDuaFinal)
+	router.POST("/formc/send-formc-administrasi-hlm-dua", formc.SendFormCAdministrasiHlmDua)
+
 	// router.Use(middlewares.AuthMiddleware())
 
 	// v1 := router.Group("v1")

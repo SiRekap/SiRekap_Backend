@@ -8,14 +8,14 @@ import (
 )
 
 type Tps struct {
-	IdTps          string `json:"id_tps" binding:"required" gorm:"primaryKey"`
+	IdTps          int    `json:"id_tps" binding:"required" gorm:"primaryKey"`
 	Alamat         string `json:"alamat" binding:"required"`
 	Koordinat      string `json:"koordinat" binding:"required"`
 	Tipe           string `json:"tipe" binding:"required"`
 	IdWilayahDasar string `json:"id_wilayah_dasar" binding:"required"`
 }
 
-func (h Tps) GetById(idTps string) (Tps, error) {
+func (h Tps) GetById(idTps int) (Tps, error) {
 	db := db.GetDB()
 
 	tps := Tps{}
