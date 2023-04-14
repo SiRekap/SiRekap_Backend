@@ -15,7 +15,7 @@ type Tps struct {
 	IdWilayahDasar string `json:"id_wilayah_dasar" binding:"required"`
 }
 
-func (h Tps) GetById(idTps int) (Tps, error) {
+func (t Tps) GetTpsById(idTps int) (Tps, error) {
 	db := db.GetDB()
 
 	tps := Tps{}

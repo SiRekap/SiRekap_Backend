@@ -25,7 +25,7 @@ func (t TpsController) GetTpsDetail(c *gin.Context) {
 		return
 	}
 
-	tps, err := tpsModel.GetById(integerIdTps)
+	tps, err := tpsModel.GetTpsById(integerIdTps)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return

@@ -19,5 +19,6 @@ func main() {
 	flag.Parse()
 	config.Init(*environment)
 	db.Init()
+	// migrations.Migrate()
 	server.Init()
 }
