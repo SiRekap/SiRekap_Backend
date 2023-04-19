@@ -1,6 +1,6 @@
 module sirekap/SiRekap_Backend
 
-go 1.17
+go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.7.0
@@ -10,7 +10,7 @@ require (
 )
 
 require (
-	github.com/aliyun/fc-runtime-go-sdk v0.2.7
+	github.com/aliyun/fc-runtime-go-sdk v0.2.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect

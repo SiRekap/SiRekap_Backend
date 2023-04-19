@@ -1,0 +1,46 @@
+edition: 1.0.0
+name: Sirekap_Backend
+access: "{{ access }}"
+
+vars:
+  region: "{{ region }}"
+  service:
+    name: "{{ serviceName }}"
+    description: 'hello world by serverless devs'
+
+services:
+  sirekap:
+    component: fc
+    actions:
+      pre-deploy:
+        - run: GO111MODULE=on go get github.com/aliyun/fc-runtime-go-sdk
+          path: ./
+        - run: GO111MODULE=on GOOS=linux CGO_ENABLED=0 go build -o target/main main.go
+          path: ./
+    props:
+      region: ${vars.region}
+      service: ${vars.service}
+      function:
+        name: "{{ functionName }}"
+        description: 'hello world by serverless devs'
+        runtime: go1
+        codeUri: ./target
+        handler: main
+        memorySize: 128
+        timeout: 60
+      triggers:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+      customDomains:
+        - domainName: auto
+          protocol: HTTP
+          routeConfigs:
+            - path: /*
+              methods:
+                - GET
+                - POST

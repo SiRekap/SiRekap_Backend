@@ -2,33 +2,25 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
+	"io"
 	"net/http"
-	"os"
-
-	"sirekap/SiRekap_Backend/config"
-	"sirekap/SiRekap_Backend/db"
-	"sirekap/SiRekap_Backend/server"
 
 	"github.com/aliyun/fc-runtime-go-sdk/fc"
+	"github.com/aliyun/fc-runtime-go-sdk/fccontext"
 )
-
-func HandleHttpRequest(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
-	environment := flag.String("e", "development", "")
-	flag.Usage = func() {
-		fmt.Println("Usage: server -e {mode}")
-		os.Exit(1)
-	}
-	flag.Parse()
-	config.Init(*environment)
-	db.Init()
-	// migrations.Migrate()
-	server.Init()
-
-	return nil
-}
 
 func main() {
 	fc.StartHttp(HandleHttpRequest)
+}
+
+// HandleHttpRequest ...
+func HandleHttpRequest(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
+	lc, _ := fccontext.FromContext(ctx)
+	fmt.Printf("context: %#v\n", lc)
+	fmt.Printf("req.Headers: %#v\n", req.Header)
+	fmt.Printf("req.URL: %#v\n", req.URL.String())
+	w.Write([]byte("hello, world!"))
+	io.WriteString(w, " 你好，世界!\n")
+	return nil
 }
