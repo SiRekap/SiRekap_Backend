@@ -1,0 +1,51 @@
+edition: 1.0.0
+name: Sirekap_Backend
+access: 'default'
+
+vars:
+  region: 'ap-southeast-5'
+  service:
+    name: 'web-framework-m94o'
+    description: 'Serverless Devs Web Framework Service'
+
+services:
+  framework:
+    component: fc
+    actions:
+      pre-deploy:
+        - run: go mod tidy
+          path: /
+        - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main main.go
+          path: /
+    props:
+      region: ${vars.region}
+      service: ${vars.service}
+      function:
+        name: 'sirekap-backend'
+        description: 'Serverless Devs Backend Function'
+        codeUri: /
+        runtime: custom.debian10
+        memorySize: 1024
+        timeout: 30
+        instanceConcurrency: 100
+        caPort: 8080
+        customRuntimeConfig:
+          command:
+            - '/main'
+      triggers:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - HEAD
+              - OPTIONS
+      customDomains:
+        - domainName: auto
+          protocol: HTTP
+          routeConfigs:
+            - path: /*
