@@ -14,16 +14,16 @@ services:
     actions:
       pre-deploy:
         - run: go mod tidy
-          path: /
+          path: ./
         - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main main.go
-          path: /
+          path: ./
     props:
       region: ${vars.region}
       service: ${vars.service}
       function:
         name: 'sirekap-backend'
         description: 'Serverless Devs Backend Function'
-        codeUri: /
+        codeUri: ./
         runtime: custom.debian10
         memorySize: 1024
         timeout: 30
