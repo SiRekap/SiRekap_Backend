@@ -31,7 +31,7 @@ services:
         caPort: 8080
         customRuntimeConfig:
           command:
-            - '/main'
+            - './main'
       triggers:
         - name: httpTrigger
           type: http
