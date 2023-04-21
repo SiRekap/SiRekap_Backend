@@ -17,6 +17,8 @@ services:
           path: ./
         - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main main.go
           path: ./
+        - run: GOOS=linux go build .
+          path: ./
     props:
       region: ${vars.region}
       service: ${vars.service}
@@ -31,7 +33,7 @@ services:
         caPort: 8080
         customRuntimeConfig:
           command:
-            - './main'
+            - './SiRekap_Backend'
       triggers:
         - name: httpTrigger
           type: http

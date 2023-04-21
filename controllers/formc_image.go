@@ -2,15 +2,11 @@ package controllers
 
 import (
 	"net/http"
+	"sirekap/SiRekap_Backend/forms"
 	"sirekap/SiRekap_Backend/models"
 
 	"github.com/gin-gonic/gin"
 )
-
-var formcImagePayloadModel = new(models.FormcImagePayload)
-var formcImageModel = new(models.FormcImage)
-var formcStatusDataModel = new(models.FormcStatusData)
-var formcStatusImageModel = new(models.FormcStatusImage)
 
 type FormcImageController struct{}
 
@@ -22,7 +18,7 @@ func (f FormcImageController) SendFormcImagePayload(c *gin.Context) {
 		return
 	}
 
-	form, err := formcImagePayloadModel.SendFormcImagePayload(formcImagePayload)
+	form, err := formcImagePayload.SendFormcImagePayload()
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -39,7 +35,24 @@ func (f FormcImageController) SendFormcImage(c *gin.Context) {
 		return
 	}
 
-	form, err := formcImageModel.SendFormcImage(formcImage)
+	form, err := formcImage.SendFormcImage()
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusOK, form)
+	}
+}
+
+func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
+	var formcImageRaw forms.FormcImageRaw
+
+	if err := c.BindJSON(&formcImageRaw); err != nil {
+		c.String(http.StatusBadRequest, "Data is not complete!")
+		return
+	}
+
+	form, err := models.SendFormcImageRaw(formcImageRaw)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -56,7 +69,7 @@ func (f FormcImageController) SendFormcStatusData(c *gin.Context) {
 		return
 	}
 
-	form, err := formcStatusDataModel.SendFormcStatusData(formcStatusData)
+	form, err := formcStatusData.SendFormcStatusData()
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -73,7 +86,7 @@ func (f FormcImageController) SendFormcStatusImage(c *gin.Context) {
 		return
 	}
 
-	form, err := formcStatusImageModel.SendFormcStatusImage(formcStatusImage)
+	form, err := formcStatusImage.SendFormcStatusImage()
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return

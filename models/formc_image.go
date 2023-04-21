@@ -2,6 +2,7 @@ package models
 
 import (
 	"sirekap/SiRekap_Backend/db"
+	"sirekap/SiRekap_Backend/forms"
 )
 
 type (
@@ -37,34 +38,53 @@ type (
 	}
 )
 
-func (f FormcImagePayload) SendFormcImagePayload(formImagePayload FormcImagePayload) (*FormcImagePayload, error) {
+func (f FormcImagePayload) SendFormcImagePayload() (*FormcImagePayload, error) {
 	db := db.GetDB()
 
-	db.Create(&formImagePayload)
+	db.Create(&f)
 
-	return &formImagePayload, nil
+	return &f, nil
 }
 
-func (f FormcImage) SendFormcImage(formImage FormcImage) (*FormcImage, error) {
+func (f FormcImage) SendFormcImage() (*FormcImage, error) {
 	db := db.GetDB()
 
-	db.Create(&formImage)
+	db.Create(&f)
 
-	return &formImage, nil
+	return &f, nil
 }
 
-func (f FormcStatusData) SendFormcStatusData(formStatusData FormcStatusData) (*FormcStatusData, error) {
+func (f FormcStatusData) SendFormcStatusData() (*FormcStatusData, error) {
 	db := db.GetDB()
 
-	db.Create(&formStatusData)
+	db.Create(&f)
 
-	return &formStatusData, nil
+	return &f, nil
 }
 
-func (f FormcStatusImage) SendFormcStatusImage(formStatusImage FormcStatusImage) (*FormcStatusImage, error) {
+func (f FormcStatusImage) SendFormcStatusImage() (*FormcStatusImage, error) {
 	db := db.GetDB()
 
-	db.Create(&formStatusImage)
+	db.Create(&f)
 
-	return &formStatusImage, nil
+	return &f, nil
+}
+
+func SendFormcImageRaw(formcImageRaw forms.FormcImageRaw) (*forms.FormcImageRaw, error) {
+	formImagePayload := FormcImagePayload{
+		Payload: formcImageRaw.Payload,
+	}
+
+	resPayload, _ := formImagePayload.SendFormcImagePayload()
+
+	formcImage := FormcImage{
+		IdImage:        resPayload.IdImage,
+		NoLembar:       formcImageRaw.NoLembar,
+		IdTps:          formcImageRaw.IdTps,
+		JenisPemilihan: formcImageRaw.JenisPemilihan,
+	}
+
+	formcImage.SendFormcImage()
+
+	return &formcImageRaw, nil
 }

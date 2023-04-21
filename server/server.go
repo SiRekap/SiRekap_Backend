@@ -1,15 +1,14 @@
 package server
 
 import (
-	"sirekap/SiRekap_Backend/config"
 	"fmt"
+	"sirekap/SiRekap_Backend/config"
 )
 
 func Init() {
 	config := config.GetConfig()
 	r := NewRouter()
-	host := config.GetString("server.host")
 	port := config.GetString("server.port")
-	address := fmt.Sprintf("%s:%s", host, port)
+	address := fmt.Sprintf(":%s", port)
 	r.Run(address)
 }

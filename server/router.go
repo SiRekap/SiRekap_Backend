@@ -41,6 +41,7 @@ func NewRouter() *gin.Engine {
 	// Form C Image
 	router.POST("/formc-image/send-formc-image-payload", formcImage.SendFormcImagePayload)
 	router.POST("/formc-image/send-formc-image", formcImage.SendFormcImage)
+	router.POST("/formc-image/send-formc-image-raw", formcImage.SendFormcImageRaw)
 	router.POST("/formc-image/send-formc-status-data", formcImage.SendFormcStatusData)
 	router.POST("/formc-image/send-formc-status-image", formcImage.SendFormcStatusImage)
 
