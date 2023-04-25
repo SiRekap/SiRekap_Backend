@@ -1,0 +1,45 @@
+name: deploy-to-gke
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/sirekap-backend:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/sirekap-backend:latest
+      - name: Configure access to GKE
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          service_account_key: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+      - name: Auth
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v1
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          cluster_name: ${{ secrets.CLUSTER_NAME }}
+          location: ${{ secrets.CLUSTER_LOCATION }}
+          credentials: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+      - name: Deploy to kubernetes cluster
+        run: kubectl apply -f ./manifests --recursive
