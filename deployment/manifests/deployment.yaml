@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ci-cd-spike-deployment
+  name: sirekap-backend-deployment
   labels:
-    app: ci-cd-spike
+    app: sirekap-backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ci-cd-spike
+      app: sirekap-backend
   template:
     metadata:
       labels:
-        app: ci-cd-spike
+        app: sirekap-backend
     spec:
       containers:
-        - name: ci-cd-spike
-          image: nathanielj108/ci-cd-spike:latest
+        - name: sirekap-backend
+          image: nathanielj108/sirekap-backend:latest
           ports:
             - containerPort: 8080
