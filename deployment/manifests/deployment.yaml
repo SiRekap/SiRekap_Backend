@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-cd-spike-deployment
+  labels:
+    app: ci-cd-spike
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ci-cd-spike
+  template:
+    metadata:
+      labels:
+        app: ci-cd-spike
+    spec:
+      containers:
+        - name: ci-cd-spike
+          image: nathanielj108/ci-cd-spike:latest
+          ports:
+            - containerPort: 8080

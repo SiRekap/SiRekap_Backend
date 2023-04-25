@@ -42,4 +42,4 @@ jobs:
           location: ${{ secrets.CLUSTER_LOCATION }}
           credentials: ${{ secrets.SERVICE_ACCOUNT_KEY }}
       - name: Deploy to kubernetes cluster
-        run: kubectl apply -f ./manifests --recursive
+        run: kubectl apply -f ./deployment/manifests --recursive
