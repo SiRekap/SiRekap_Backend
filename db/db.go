@@ -9,7 +9,7 @@ import (
 var db *gorm.DB
 
 func Init() {
-	dsn := "host=db.ifylprocwbwlhjupjbrl.supabase.co user=postgres password=JhfXT5UlxKOTPKXF dbname=postgres port=5432 sslmode=disable"
+	dsn := "host=db.zoeczoxdgyuhezioxvcy.supabase.co user=postgres password=Pqq2#Jd/ZgDL*5D dbname=postgres port=5432 sslmode=disable"
 	db, _ = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,

@@ -10,7 +10,7 @@ import (
 type Paslon struct {
 	IdPaslon         int    `json:"id_paslon" binding:"required" gorm:"primaryKey"`
 	IdJnsPencalonan  string `json:"id_jns_pencalonan" binding:"required"`
-	JenisPemilihan   string `json:"jenis_pemilihan" binding:"required"`
+	JenisPemilihan   int    `json:"jenis_pemilihan" binding:"required"`
 	IdWilayah        int    `json:"id_wilayah" binding:"required"`
 	NoUrutPencalonan int    `json:"no_urut_pencalonan" binding:"required"`
 	NamaCaka         string `json:"nama_caka" binding:"required"`

@@ -6,6 +6,7 @@ import (
 	"os"
 	"sirekap/SiRekap_Backend/config"
 	"sirekap/SiRekap_Backend/db"
+	"sirekap/SiRekap_Backend/migrations"
 	"sirekap/SiRekap_Backend/server"
 )
 
@@ -18,6 +19,8 @@ func main() {
 	flag.Parse()
 	config.Init(*environment)
 	db.Init()
-	// migrations.Migrate()
+	migrations.Migrate()
 	server.Init()
+
+	// controllers.SendFormcResultStreamProcessingRequestTest()
 }

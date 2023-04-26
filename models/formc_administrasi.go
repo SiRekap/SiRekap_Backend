@@ -131,7 +131,7 @@ type (
 	// }
 )
 
-func (f FormcAdministrasiHlmSatuProses) GetFormcAdministrasiHlmSatuProses(idImage int) (FormcAdministrasiHlmSatuProses, error) {
+func GetFormcAdministrasiHlmSatuProses(idImage int) (FormcAdministrasiHlmSatuProses, error) {
 	db := db.GetDB()
 
 	form := FormcAdministrasiHlmSatuProses{
@@ -147,7 +147,7 @@ func (f FormcAdministrasiHlmSatuProses) GetFormcAdministrasiHlmSatuProses(idImag
 	return form, nil
 }
 
-func (f FormcAdministrasiHlmSatuProses) SendFormcAdministrasiHlmSatuProses(form FormcAdministrasiHlmSatuProses) (*FormcAdministrasiHlmSatuProses, error) {
+func SendFormcAdministrasiHlmSatuProses(form FormcAdministrasiHlmSatuProses) (*FormcAdministrasiHlmSatuProses, error) {
 	db := db.GetDB()
 
 	db.Create(&form)
@@ -155,7 +155,7 @@ func (f FormcAdministrasiHlmSatuProses) SendFormcAdministrasiHlmSatuProses(form 
 	return &form, nil
 }
 
-func (f FormcAdministrasiHlmSatuFinal) GetFormcAdministrasiHlmSatuFinal(idVersi int) (FormcAdministrasiHlmSatuFinal, error) {
+func GetFormcAdministrasiHlmSatuFinal(idVersi int) (FormcAdministrasiHlmSatuFinal, error) {
 	db := db.GetDB()
 
 	form := FormcAdministrasiHlmSatuFinal{
@@ -171,7 +171,7 @@ func (f FormcAdministrasiHlmSatuFinal) GetFormcAdministrasiHlmSatuFinal(idVersi 
 	return form, nil
 }
 
-func (f FormcAdministrasiHlmSatuFinal) SendFormcAdministrasiHlmSatuFinal(form FormcAdministrasiHlmSatuFinal) (*FormcAdministrasiHlmSatuFinal, error) {
+func SendFormcAdministrasiHlmSatuFinal(form FormcAdministrasiHlmSatuFinal) (*FormcAdministrasiHlmSatuFinal, error) {
 	db := db.GetDB()
 
 	db.Create(&form)
@@ -203,7 +203,7 @@ func (f FormcAdministrasiHlmSatuFinal) SendFormcAdministrasiHlmSatuFinal(form Fo
 // 	return &form, nil
 // }
 
-func (f FormcAdministrasiHlmDuaProses) GetFormcAdministrasiHlmDuaProses(idImage int) (FormcAdministrasiHlmDuaProses, error) {
+func GetFormcAdministrasiHlmDuaProses(idImage int) (FormcAdministrasiHlmDuaProses, error) {
 	db := db.GetDB()
 
 	form := FormcAdministrasiHlmDuaProses{
@@ -219,7 +219,7 @@ func (f FormcAdministrasiHlmDuaProses) GetFormcAdministrasiHlmDuaProses(idImage 
 	return form, nil
 }
 
-func (f FormcAdministrasiHlmDuaProses) SendFormcAdministrasiHlmDuaProses(form FormcAdministrasiHlmDuaProses) (*FormcAdministrasiHlmDuaProses, error) {
+func SendFormcAdministrasiHlmDuaProses(form FormcAdministrasiHlmDuaProses) (*FormcAdministrasiHlmDuaProses, error) {
 	db := db.GetDB()
 
 	db.Create(&form)
@@ -227,7 +227,7 @@ func (f FormcAdministrasiHlmDuaProses) SendFormcAdministrasiHlmDuaProses(form Fo
 	return &form, nil
 }
 
-func (f FormcAdministrasiHlmDuaFinal) GetFormcAdministrasiHlmDuaFinal(idVersi int) (FormcAdministrasiHlmDuaFinal, error) {
+func GetFormcAdministrasiHlmDuaFinal(idVersi int) (FormcAdministrasiHlmDuaFinal, error) {
 	db := db.GetDB()
 
 	form := FormcAdministrasiHlmDuaFinal{
@@ -243,7 +243,7 @@ func (f FormcAdministrasiHlmDuaFinal) GetFormcAdministrasiHlmDuaFinal(idVersi in
 	return form, nil
 }
 
-func (f FormcAdministrasiHlmDuaFinal) SendFormcAdministrasiHlmDuaFinal(form FormcAdministrasiHlmDuaFinal) (*FormcAdministrasiHlmDuaFinal, error) {
+func SendFormcAdministrasiHlmDuaFinal(form FormcAdministrasiHlmDuaFinal) (*FormcAdministrasiHlmDuaFinal, error) {
 	db := db.GetDB()
 
 	db.Create(&form)

@@ -26,7 +26,7 @@ func (s SuaraCController) GetSuaraCFinal(c *gin.Context) {
 		return
 	}
 
-	res, err := suaraCFinalModel.GetSuaraCFinal(integerIdVersi)
+	res, err := models.GetSuaraCFinal(integerIdVersi)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -43,7 +43,7 @@ func (s SuaraCController) SendSuaraCFinal(c *gin.Context) {
 		return
 	}
 
-	form, err := suaraCFinalModel.SendSuaraCFinal(suaraCFinal)
+	form, err := models.SendSuaraCFinal(suaraCFinal)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -65,7 +65,7 @@ func (s SuaraCController) GetSuaraCProses(c *gin.Context) {
 		return
 	}
 
-	res, err := suaraCProsesModel.GetSuaraCProses(integerIdImage)
+	res, err := models.GetSuaraCProses(integerIdImage)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -82,7 +82,7 @@ func (s SuaraCController) SendSuaraCProses(c *gin.Context) {
 		return
 	}
 
-	form, err := suaraCProsesModel.SendSuaraCProses(suaraCProses)
+	form, err := models.SendSuaraCProses(suaraCProses)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return

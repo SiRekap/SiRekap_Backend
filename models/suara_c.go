@@ -25,7 +25,7 @@ type (
 	}
 )
 
-func (s SuaraCFinal) GetSuaraCFinal(idVersi int) (SuaraCFinal, error) {
+func GetSuaraCFinal(idVersi int) (SuaraCFinal, error) {
 	db := db.GetDB()
 
 	suara := SuaraCFinal{
@@ -41,7 +41,7 @@ func (s SuaraCFinal) GetSuaraCFinal(idVersi int) (SuaraCFinal, error) {
 	return suara, nil
 }
 
-func (s SuaraCFinal) SendSuaraCFinal(suara SuaraCFinal) (*SuaraCFinal, error) {
+func SendSuaraCFinal(suara SuaraCFinal) (*SuaraCFinal, error) {
 	db := db.GetDB()
 
 	db.Create(&suara)
@@ -49,7 +49,7 @@ func (s SuaraCFinal) SendSuaraCFinal(suara SuaraCFinal) (*SuaraCFinal, error) {
 	return &suara, nil
 }
 
-func (s SuaraCProses) GetSuaraCProses(idImage int) (SuaraCProses, error) {
+func GetSuaraCProses(idImage int) (SuaraCProses, error) {
 	db := db.GetDB()
 
 	suara := SuaraCProses{
@@ -65,7 +65,7 @@ func (s SuaraCProses) GetSuaraCProses(idImage int) (SuaraCProses, error) {
 	return suara, nil
 }
 
-func (s SuaraCProses) SendSuaraCProses(suara SuaraCProses) (*SuaraCProses, error) {
+func SendSuaraCProses(suara SuaraCProses) (*SuaraCProses, error) {
 	db := db.GetDB()
 
 	db.Create(&suara)

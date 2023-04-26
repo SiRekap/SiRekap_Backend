@@ -8,16 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var formCAdministrasiHlmSatuProsesModel = new(models.FormcAdministrasiHlmSatuProses)
-var formCAdministrasiHlmSatuFinalModel = new(models.FormcAdministrasiHlmSatuFinal)
-
-// var formCAdministrasiHlmSatuModel = new(models.FormcAdministrasiHlmSatu)
-
-var formCAdministrasiHlmDuaProsesModel = new(models.FormcAdministrasiHlmDuaProses)
-var formCAdministrasiHlmDuaFinalModel = new(models.FormcAdministrasiHlmDuaFinal)
-
-// var formCAdministrasiHlmDuaModel = new(models.FormcAdministrasiHlmDua)
-
 type FormcAdministrasiController struct{}
 
 func (f FormcAdministrasiController) GetFormcAdministrasiHlmSatuProses(c *gin.Context) {
@@ -33,7 +23,7 @@ func (f FormcAdministrasiController) GetFormcAdministrasiHlmSatuProses(c *gin.Co
 		return
 	}
 
-	res, err := formCAdministrasiHlmSatuProsesModel.GetFormcAdministrasiHlmSatuProses(integerIdImage)
+	res, err := models.GetFormcAdministrasiHlmSatuProses(integerIdImage)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -50,7 +40,7 @@ func (f FormcAdministrasiController) SendFormcAdministrasiHlmSatuProses(c *gin.C
 		return
 	}
 
-	res, err := formCAdministrasiHlmSatuProsesModel.SendFormcAdministrasiHlmSatuProses(formCAdministrasiHlmSatuProses)
+	res, err := models.SendFormcAdministrasiHlmSatuProses(formCAdministrasiHlmSatuProses)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -72,7 +62,7 @@ func (f FormcAdministrasiController) GetFormcAdministrasiHlmSatuFinal(c *gin.Con
 		return
 	}
 
-	res, err := formCAdministrasiHlmSatuFinalModel.GetFormcAdministrasiHlmSatuFinal(integerIdVersi)
+	res, err := models.GetFormcAdministrasiHlmSatuFinal(integerIdVersi)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -89,7 +79,7 @@ func (f FormcAdministrasiController) SendFormcAdministrasiHlmSatuFinal(c *gin.Co
 		return
 	}
 
-	res, err := formCAdministrasiHlmSatuFinalModel.SendFormcAdministrasiHlmSatuFinal(formCAdministrasiHlmSatuFinal)
+	res, err := models.SendFormcAdministrasiHlmSatuFinal(formCAdministrasiHlmSatuFinal)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -150,7 +140,7 @@ func (f FormcAdministrasiController) GetFormcAdministrasiHlmDuaProses(c *gin.Con
 		return
 	}
 
-	res, err := formCAdministrasiHlmDuaProsesModel.GetFormcAdministrasiHlmDuaProses(integerIdImage)
+	res, err := models.GetFormcAdministrasiHlmDuaProses(integerIdImage)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -167,7 +157,7 @@ func (f FormcAdministrasiController) SendFormcAdministrasiHlmDuaProses(c *gin.Co
 		return
 	}
 
-	res, err := formCAdministrasiHlmDuaProsesModel.SendFormcAdministrasiHlmDuaProses(formCAdministrasiHlmDuaProses)
+	res, err := models.SendFormcAdministrasiHlmDuaProses(formCAdministrasiHlmDuaProses)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -189,7 +179,7 @@ func (f FormcAdministrasiController) GetFormcAdministrasiHlmDuaFinal(c *gin.Cont
 		return
 	}
 
-	res, err := formCAdministrasiHlmDuaFinalModel.GetFormcAdministrasiHlmDuaFinal(integerIdVersi)
+	res, err := models.GetFormcAdministrasiHlmDuaFinal(integerIdVersi)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -206,7 +196,7 @@ func (f FormcAdministrasiController) SendFormcAdministrasiHlmDuaFinal(c *gin.Con
 		return
 	}
 
-	res, err := formCAdministrasiHlmDuaFinalModel.SendFormcAdministrasiHlmDuaFinal(formCAdministrasiHlmDuaFinal)
+	res, err := models.SendFormcAdministrasiHlmDuaFinal(formCAdministrasiHlmDuaFinal)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return

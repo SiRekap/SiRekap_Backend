@@ -8,16 +8,18 @@ import (
 func Migrate() {
 	db := db.GetDB()
 
-	db.AutoMigrate(&models.FormcImage{})
-	db.AutoMigrate(&models.FormcImagePayload{})
-
-	db.AutoMigrate(&models.FormcKesesuaian{})
-	db.AutoMigrate(&models.Paslon{})
-
 	db.AutoMigrate(&models.FormcAdministrasiHlmSatuProses{})
 	db.AutoMigrate(&models.FormcAdministrasiHlmSatuFinal{})
 	db.AutoMigrate(&models.FormcAdministrasiHlmDuaProses{})
 	db.AutoMigrate(&models.FormcAdministrasiHlmDuaFinal{})
+
+	db.AutoMigrate(&models.FormcImage{})
+	db.AutoMigrate(&models.FormcImagePayload{})
+	db.AutoMigrate(&models.FormcStatusData{})
+	db.AutoMigrate(&models.FormcStatusImage{})
+	db.AutoMigrate(&models.FormcImageGroup{})
+
+	db.AutoMigrate(&models.FormcKesesuaian{})
 
 	db.AutoMigrate(&models.Paslon{})
 

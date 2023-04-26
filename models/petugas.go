@@ -25,7 +25,7 @@ type (
 
 	Pemeriksa struct {
 		IdPemeriksa     int        `json:"id_pemeriksa" binding:"required" gorm:"primaryKey"`
-		JenisPemilihan  string     `json:"jenis_pemilihan" binding:"required"`
+		JenisPemilihan  int        `json:"jenis_pemilihan" binding:"required"`
 		Url             string     `json:"url" binding:"required"`
 		WaktuUrl        *time.Time `json:"waktu_url" binding:"required"`
 		KeteranganUrl   string     `json:"keterangan_url" binding:"required"`

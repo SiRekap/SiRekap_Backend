@@ -12,10 +12,10 @@ type Tps struct {
 	Alamat         string `json:"alamat" binding:"required"`
 	Koordinat      string `json:"koordinat" binding:"required"`
 	Tipe           string `json:"tipe" binding:"required"`
-	IdWilayahDasar string `json:"id_wilayah_dasar" binding:"required"`
+	IdWilayahDasar int    `json:"id_wilayah_dasar" binding:"required"`
 }
 
-func (t Tps) GetTpsById(idTps int) (Tps, error) {
+func GetTpsById(idTps int) (Tps, error) {
 	db := db.GetDB()
 
 	tps := Tps{}
