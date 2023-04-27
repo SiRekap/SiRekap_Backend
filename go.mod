@@ -3,7 +3,6 @@ module sirekap/SiRekap_Backend
 go 1.19
 
 require (
-	github.com/confluentinc/confluent-kafka-go/v2 v2.1.0
 	github.com/gin-gonic/gin v1.7.0
 	github.com/spf13/viper v1.7.0
 	gorm.io/driver/postgres v1.4.8
