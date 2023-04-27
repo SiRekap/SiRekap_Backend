@@ -1,6 +1,8 @@
-FROM golang:1.20
+FROM golang:1.20-alpine
 
 WORKDIR /app
+
+RUN apk add librdkafka-dev pkgconf
 
 COPY go.mod ./
 COPY go.sum ./
@@ -9,7 +11,7 @@ RUN go mod tidy
 
 COPY . ./
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags musl -o main ./
 
 EXPOSE 8080
 

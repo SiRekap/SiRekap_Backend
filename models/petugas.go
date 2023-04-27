@@ -21,6 +21,8 @@ type (
 		Nik            string `json:"nik" binding:"required"`
 		Email          string `json:"email" binding:"required"`
 		Msisdn         string `json:"msisdn" binding:"required"`
+		DeviceId       string `json:"device_id" binding:"required"`
+		Password       string `json:"password" binding:"required"`
 	}
 
 	Pemeriksa struct {
@@ -44,7 +46,10 @@ func (p PetugasTps) RegisterPetugas(userRegisterData forms.PetugasRegisterData) 
 		return nil, err
 	}
 
-	db.Model(&petugasTps).Update("msisdn", userRegisterData.Msisdn)
+	db.Model(&petugasTps).
+		Update("msisdn", userRegisterData.Msisdn).
+		Update("device_id", userRegisterData.DeviceId).
+		Update("password", userRegisterData.Password)
 
 	return &petugasTps, nil
 }
