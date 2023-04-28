@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "sirekap-383605",
+  "private_key_id": "473b98d7b061536fe34c5cd4494f33af1c3229d0",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDNe2p4lzQFtsjd\nqc4ud9h7h3U/og91rgxvDyINwG2ZbgiDyirk3Kj9ya/rTUnFRPS/d5XP/32Wk39U\nDbgJjJIrj9BpMDZiFqmBC2W2ytn6UvN7xvKS3xXQB3W2PxZoM5nT1k1NYFxpCx/Z\nUGraj0ItAOgHIMoDwFB/fwHcpG+IE6tHZ//ipBKb6IUoG9wOR983nAlQ8R7TLZ0n\nsqPIPEk+2HQgEwa5qG4U5axIJK+XpVKxuZ0r1HKq7G1+JeZOMEH7E83LU5RuB5NS\nTPQ8Kb4PLP0vcHLPmhMsRxSAbNMKvpXboeERPR4RB916chgKLGuQK02ZzH9Byg9S\nEBvtUmetAgMBAAECggEABfWB4giRMGeQ3dwhDS1vaIOw5YfGYYAK6cSbVPaYkcDE\nZp1cDuzhn2c0NBjMHnhbDbDC4OLp/44m/OcfSB2cwT583t66+69oZS7mrqf62CeE\nL/nWH+bFe+s0zB8lFUqxIm4o/z5fvQcez79P3fyWFiExhBVnbmJAeLYUSykJ9/z7\n/q6t4llzGddtPpWJBsKvBiUxJCAoBSiZVdVOnylryHbPhCPERQU24hwYalDmrsSB\nLHf1wrRb4HXh3J0sEtKR7MKfGRmES6WQJihfKfM51zYl1CTB2qDGFMs/JN2mZSij\nnXOVZKtW0abDD+xHtr1qDBwh1oXohPGhXj3ljqFagQKBgQD+xcw/Pjchmxfuq+2w\nzKWsJjhL40qtiEVB1T9dPOHUUC39IiRx+o3f4hgZauwS/KpkQ34Y3sZHP3PcIu1D\nd1Pq5IOfk9P1TotnRPLTrgjR75FUUSrYg6aZ+/Tulq0K1DoMYjQNGeA4nIx87sv5\nDmH7ZMloHXX0y7a6PzWVmRRQLQKBgQDOeNRqq0XDUDyLwLyBODi0sMLrfC3+cdou\nTEqPBqOMN2Zpnm2trsBpikHHYobtFe6Uuh2J5CJIzskEI8z6WODucP5nKccdNalY\nU3VQlj9kR7+1LRRiEMez7efQeoHX10iMpmEb5K0eyqo47mykzQMBWHKSb61bjQ37\nJeCaFK2lgQKBgQD4Ehbneafq4/4wml3tqcajUe+9DMrZH3f4OzDgk3h857lv4f/E\nr6fXWGoIzdCiSD2NNR6iDsDX/RPORH/sElO2wtza0/EtyVX5ruwWaz4RVIiYphPn\nEIF3LBr4+ePySGVhS3nNS+XEmcI9n7Mihfun8iIea5lAS99XiFafnJdn3QKBgEgc\naUvL/7SETHEe4ndbFGr/JUSrfUDVsLbkzFGBpxMssicHPxUe6HKz599kKO2a8FWf\nXvuu4s588jXw7wEsk3qTmjabn8Ay4q9HjryTjRZP/MOhN/I8HBNabtEgSEMDHIKL\nBXWBe3k6nRL/KpCwTXFl27YLLQfBjvV9OCF4QWGBAoGBAIgEHc1XP6jJ3hVEoYDh\nWKjaVy/Jyy2PiIbGsP+tE9FnNpvMu4izhjQmrDZZEo66C1ZvXqyXhD8xkmSMCvVM\n4OMnhmEWevznpMOg2qz0JooFSb5igJrEqk3+aWEaZCyTtOo0QhWnGAgZ4dWh/jeh\n6KgLjcu0l9AyIJ4PRhuKXZ+7\n-----END PRIVATE KEY-----\n",
+  "client_email": "sirekap-mobile@sirekap-383605.iam.gserviceaccount.com",
+  "client_id": "108783124408410028443",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sirekap-mobile%40sirekap-383605.iam.gserviceaccount.com"
+}

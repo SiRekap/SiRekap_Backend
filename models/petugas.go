@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"sirekap/SiRekap_Backend/db"
 	"sirekap/SiRekap_Backend/forms"
 	"time"
@@ -46,9 +45,6 @@ func (p PetugasTps) RegisterPetugas(userRegisterData forms.PetugasRegisterData) 
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("halo")
-	fmt.Println(userRegisterData.DeviceId)
 
 	db.Model(&petugasTps).Updates(PetugasTps{
 		Msisdn:   userRegisterData.Msisdn,

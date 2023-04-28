@@ -9,6 +9,7 @@ import (
 	"os"
 	"sirekap/SiRekap_Backend/forms"
 	"sirekap/SiRekap_Backend/models"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -224,12 +225,36 @@ func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcI
 		return resp, err
 	}
 
+	formcImagePayload := models.FormcImagePayload{}
+
+	err = formcImagePayload.GetFormcImagePayload(resp.IdImageList[0])
+	if err != nil {
+		return resp, err
+	}
+	img1Url := formcImagePayload.Payload
+
+	err = formcImagePayload.GetFormcImagePayload(resp.IdImageList[1])
+	if err != nil {
+		return resp, err
+	}
+	img2Url := formcImagePayload.Payload
+
+	err = formcImagePayload.GetFormcImagePayload(resp.IdImageList[2])
+	if err != nil {
+		return resp, err
+	}
+	img3Url := formcImagePayload.Payload
+
+	pdfFileName := "kesesuaian-" + strconv.Itoa(resp.IdImageList[0]+resp.IdImageList[1]+resp.IdImageList[2]) + ".pdf"
+	err = GeneratePdfAndSendToBucket(img1Url, img2Url, img3Url, pdfFileName)
+
 	formcImageGroup := models.FormcImageGroup{
 		IdTps:          formcImage.IdTps,
 		JenisPemilihan: formcImage.JenisPemilihan,
 		IdImageHlm1:    resp.IdImageList[0],
 		IdImageHlm2:    resp.IdImageList[1],
 		IdImageHlm3:    resp.IdImageList[2],
+		PdfUrl:         "https://storage.googleapis.com/staging-sirekap-form/pdf/" + pdfFileName,
 	}
 
 	_, err = formcImageGroup.SendFormcImageGroup()
@@ -265,8 +290,7 @@ func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcI
 	return resp, nil
 }
 
-func GeneratePdfAndSendToBucket(img1url string, img2url string, img3url string) error {
-	pdfFileName := "image.pdf"
+func GeneratePdfAndSendToBucket(img1url string, img2url string, img3url string, pdfFileName string) error {
 
 	pdf := gopdf.GoPdf{}
 	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4})
@@ -275,23 +299,23 @@ func GeneratePdfAndSendToBucket(img1url string, img2url string, img3url string) 
 		return err
 	}
 	pdf.AddPage()
-	pdf.Image("img1url.jpg", 200, 50, nil)
+	pdf.Image("img1url.jpg", 0, 0, nil)
 
 	if err := DownloadFile("img2url.jpg", img2url); err != nil {
 		return err
 	}
 	pdf.AddPage()
-	pdf.Image("img2url.jpg", 200, 50, nil)
+	pdf.Image("img2url.jpg", 0, 0, nil)
 
 	if err := DownloadFile("img3url.jpg", img3url); err != nil {
 		return err
 	}
 	pdf.AddPage()
-	pdf.Image("img3url.jpg", 200, 50, nil)
+	pdf.Image("img3url.jpg", 0, 0, nil)
 
 	pdf.WritePdf(pdfFileName)
 
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "sirekap-383605-473b98d7b061.json")
 
 	client, err := storage.NewClient(context.Background())
 	if err != nil {
@@ -353,6 +377,36 @@ func (c *ClientUploader) UploadFile(file *os.File, object string) error {
 	}
 
 	return nil
+}
+
+func (f FormcImageController) GetFormcImageGroupByIdTpsAndJenisPemilihan(c *gin.Context) {
+	idTps := c.Param("id_tps")
+	jenisPemilihan := c.Param("jenis_pemilihan")
+	if idTps == "" || jenisPemilihan == "" {
+		c.String(http.StatusBadRequest, "Id Tps is not provided or Jenis Pemilihan is not provided!")
+		return
+	}
+
+	integerIdTps, err := strconv.Atoi(idTps)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Id Tps is not valid!")
+		return
+	}
+
+	integerJenisPemilihan, err := strconv.Atoi(jenisPemilihan)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Jenis Pemilihan is not valid!")
+		return
+	}
+
+	var formcImageGroup models.FormcImageGroup
+	res, err := formcImageGroup.GetFormcImageGroupByIdTpsAndJenisPemilihan(integerIdTps, integerJenisPemilihan)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusOK, res)
+	}
 }
 
 // func SendFormcResultStreamProcessingRequest(form forms.FormcImageVisionResponse) error {

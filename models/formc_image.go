@@ -59,6 +59,22 @@ func (f FormcImagePayload) SendFormcImagePayload() (*FormcImagePayload, error) {
 	return &f, nil
 }
 
+func (f FormcImagePayload) GetFormcImagePayload(idImage int) error {
+	db := db.GetDB()
+
+	f = FormcImagePayload{
+		IdImage: idImage,
+	}
+
+	result := db.First(&f)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return result.Error
+	}
+
+	return nil
+}
+
 func (f FormcImage) GetFormcImage(idImage int) error {
 	db := db.GetDB()
 
@@ -105,6 +121,20 @@ func (f FormcImageGroup) SendFormcImageGroup() (*FormcImageGroup, error) {
 	db.Create(&f)
 
 	return &f, nil
+}
+
+func (f FormcImageGroup) GetFormcImageGroupByIdTpsAndJenisPemilihan(idTps int, jenisPemilihan int) (FormcImageGroup, error) {
+	db := db.GetDB()
+
+	formcImageGroup := FormcImageGroup{}
+
+	result := db.Where("id_tps = ? AND jenis_pemilihan = ?", idTps, jenisPemilihan).First(&formcImageGroup)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return FormcImageGroup{}, result.Error
+	}
+
+	return formcImageGroup, nil
 }
 
 func SendFormcImageRaw(formcImageRaw forms.FormcImageRaw) (*forms.FormcImageRawResponse, error) {
