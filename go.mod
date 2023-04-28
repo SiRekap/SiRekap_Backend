@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	cloud.google.com/go/storage v1.29.0
+	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/gin-gonic/gin v1.7.0
 	github.com/signintech/gopdf v0.16.1
 	github.com/spf13/viper v1.7.0

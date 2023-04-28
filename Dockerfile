@@ -1,8 +1,8 @@
-FROM golang:1.20-alpine
+FROM golang:1.20
 
 WORKDIR /app
 
-RUN apk add librdkafka-dev pkgconf
+# RUN apk add librdkafka-dev pkgconf
 
 COPY go.mod ./
 COPY go.sum ./

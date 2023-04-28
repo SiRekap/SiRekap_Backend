@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"sirekap/SiRekap_Backend/db"
+	"sirekap/SiRekap_Backend/utils"
 
 	"gorm.io/gorm"
 )
@@ -16,6 +17,7 @@ type Tps struct {
 }
 
 func GetTpsById(idTps int) (Tps, error) {
+
 	db := db.GetDB()
 
 	tps := Tps{}
@@ -23,6 +25,8 @@ func GetTpsById(idTps int) (Tps, error) {
 	result := db.Where("id_tps = ?", idTps).First(&tps)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return Tps{}, utils.ErrRecordNotFound
+	} else if result.Error != nil {
 		return Tps{}, result.Error
 	}
 
