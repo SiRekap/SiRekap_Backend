@@ -21,5 +21,9 @@ func main() {
 	// migrations.Migrate()
 	server.Init()
 
-	// controllers.SendFormcResultStreamProcessingRequestTest()
+	// controllers.GeneratePdfAndSendToBucket(
+	// 	"https://wallpapers.com/images/featured/2ygv7ssy2k0lxlzu.jpg",
+	// 	"https://wallpapers.com/images/featured/2ygv7ssy2k0lxlzu.jpg",
+	// 	"https://wallpapers.com/images/featured/2ygv7ssy2k0lxlzu.jpg",
+	// )
 }

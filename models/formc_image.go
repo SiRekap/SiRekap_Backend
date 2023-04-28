@@ -41,12 +41,13 @@ type (
 	}
 
 	FormcImageGroup struct {
-		IdGroup        int `json:"id_group" binding:"required" gorm:"primaryKey"`
-		IdTps          int `json:"id_tps" binding:"required"`
-		JenisPemilihan int `json:"jenis_pemilihan" binding:"required"`
-		IdImageHlm1    int `json:"id_image_hlm1" binding:"required"`
-		IdImageHlm2    int `json:"id_image_hlm2" binding:"required"`
-		IdImageHlm3    int `json:"id_image_hlm3" binding:"required"`
+		IdGroup        int    `json:"id_group" binding:"required" gorm:"primaryKey"`
+		IdTps          int    `json:"id_tps" binding:"required"`
+		JenisPemilihan int    `json:"jenis_pemilihan" binding:"required"`
+		IdImageHlm1    int    `json:"id_image_hlm1" binding:"required"`
+		IdImageHlm2    int    `json:"id_image_hlm2" binding:"required"`
+		IdImageHlm3    int    `json:"id_image_hlm3" binding:"required"`
+		PdfUrl         string `json:"pdf_url" binding:"required"`
 	}
 )
 

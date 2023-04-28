@@ -11,7 +11,7 @@ type PemeriksaRegisterData struct {
 	Nama           string `json:"nama" binding:"required"`
 	Nik            string `json:"nik" binding:"required"`
 	NoHandphone    string `json:"no_handphone" binding:"required"`
-	JenisPemeriksa string `json:"jenis_pemeriksa" binding:"required"`
+	JenisPemeriksa int    `json:"jenis_pemeriksa" binding:"required"`
 	JenisPemilihan int    `json:"jenis_pemilihan" binding:"required"`
 	IdPaslon       int    `json:"id_paslon" binding:"required"`
 }

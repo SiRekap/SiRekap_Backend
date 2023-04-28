@@ -12,7 +12,7 @@ func NewRouter() *gin.Engine {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	formcAdministrasi := new(controllers.FormcAdministrasiController)
+	// formcAdministrasi := new(controllers.FormcAdministrasiController)
 	formcImage := new(controllers.FormcImageController)
 	formcKesesuaian := new(controllers.FormcKesesuaianController)
 	health := new(controllers.HealthController)
@@ -22,28 +22,28 @@ func NewRouter() *gin.Engine {
 	tps := new(controllers.TpsController)
 
 	// Form C Administrasi
-	router.GET("/formc-administrasi/get-formc-administrasi-hlm-satu-proses", formcAdministrasi.GetFormcAdministrasiHlmSatuProses)
-	router.GET("/formc-administrasi/get-formc-administrasi-hlm-satu-final", formcAdministrasi.GetFormcAdministrasiHlmSatuFinal)
+	// router.GET("/formc-administrasi/get-formc-administrasi-hlm-satu-proses", formcAdministrasi.GetFormcAdministrasiHlmSatuProses)
+	// router.GET("/formc-administrasi/get-formc-administrasi-hlm-satu-final", formcAdministrasi.GetFormcAdministrasiHlmSatuFinal)
 	// router.GET("/formc-administrasi/get-formc-administrasi-hlm-satu", formcAdministrasi.GetFormcAdministrasiHlmSatu)
 
-	router.POST("/formc-administrasi/send-formc-administrasi-hlm-satu-proses", formcAdministrasi.SendFormcAdministrasiHlmSatuProses)
-	router.POST("/formc-administrasi/send-formc-administrasi-hlm-satu-final", formcAdministrasi.SendFormcAdministrasiHlmSatuFinal)
+	// router.POST("/formc-administrasi/send-formc-administrasi-hlm-satu-proses", formcAdministrasi.SendFormcAdministrasiHlmSatuProses)
+	// router.POST("/formc-administrasi/send-formc-administrasi-hlm-satu-final", formcAdministrasi.SendFormcAdministrasiHlmSatuFinal)
 	// router.POST("/formc-administrasi/send-formc-administrasi-hlm-satu", formcAdministrasi.SendFormcAdministrasiHlmSatu)
 
-	router.GET("/formc-administrasi/get-formc-administrasi-hlm-dua-proses", formcAdministrasi.GetFormcAdministrasiHlmDuaProses)
-	router.GET("/formc-administrasi/get-formc-administrasi-hlm-dua-final", formcAdministrasi.GetFormcAdministrasiHlmDuaFinal)
+	// router.GET("/formc-administrasi/get-formc-administrasi-hlm-dua-proses", formcAdministrasi.GetFormcAdministrasiHlmDuaProses)
+	// router.GET("/formc-administrasi/get-formc-administrasi-hlm-dua-final", formcAdministrasi.GetFormcAdministrasiHlmDuaFinal)
 	// router.GET("/formc/get-formc-administrasi-hlm-dua", formcAdministrasi.GetFormcAdministrasiHlmDua)
 
-	router.POST("/formc-administrasi/send-formc-administrasi-hlm-dua-proses", formcAdministrasi.SendFormcAdministrasiHlmDuaProses)
-	router.POST("/formc-administrasi/send-formc-administrasi-hlm-dua-final", formcAdministrasi.SendFormcAdministrasiHlmDuaFinal)
+	// router.POST("/formc-administrasi/send-formc-administrasi-hlm-dua-proses", formcAdministrasi.SendFormcAdministrasiHlmDuaProses)
+	// router.POST("/formc-administrasi/send-formc-administrasi-hlm-dua-final", formcAdministrasi.SendFormcAdministrasiHlmDuaFinal)
 	// router.POST("/formc/send-formc-administrasi-hlm-dua", formcAdministrasi.SendFormcAdministrasiHlmDua)
 
 	// Form C Image
-	router.POST("/formc-image/send-formc-image-payload", formcImage.SendFormcImagePayload)
-	router.POST("/formc-image/send-formc-image", formcImage.SendFormcImage)
+	// router.POST("/formc-image/send-formc-image-payload", formcImage.SendFormcImagePayload)
+	// router.POST("/formc-image/send-formc-image", formcImage.SendFormcImage)
 	router.POST("/formc-image/send-formc-image-raw", formcImage.SendFormcImageRaw)
-	router.POST("/formc-image/send-formc-status-data", formcImage.SendFormcStatusData)
-	router.POST("/formc-image/send-formc-status-image", formcImage.SendFormcStatusImage)
+	// router.POST("/formc-image/send-formc-status-data", formcImage.SendFormcStatusData)
+	// router.POST("/formc-image/send-formc-status-image", formcImage.SendFormcStatusImage)
 
 	// Form C Kesesuaian
 	router.POST("/formc-kesesuaian/send-formc-kesesuaian", formcKesesuaian.SendFormCKesesuaian)
@@ -54,6 +54,8 @@ func NewRouter() *gin.Engine {
 	// Petugas
 	router.POST("/register", petugas.RegisterPetugas)
 	router.POST("/register-pemeriksa", petugas.RegisterPemeriksa)
+	router.GET("/petugas/:id_petugas", petugas.GetPetugasTpsByIdPetugas)
+	router.GET("/petugas/all-pemeriksa/:id_tps", petugas.GetAllPemeriksaByTps)
 
 	// Suara C
 	router.GET("/suara-c/get-suara-c-final", suaraC.GetSuaraCFinal)

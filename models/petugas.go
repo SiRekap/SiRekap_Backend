@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"sirekap/SiRekap_Backend/db"
 	"sirekap/SiRekap_Backend/forms"
 	"time"
@@ -12,8 +13,9 @@ import (
 type (
 	PetugasTps struct {
 		IdPetugas      int    `json:"id_petugas" binding:"required" gorm:"primaryKey"`
-		IdWilayah      int    `json:"id_wilayah" binding:"required"`
-		JenisPemeriksa string `json:"jenis_pemeriksa" binding:"required"`
+		IdTps          int    `json:"id_wilayah" binding:"required"`
+		JenisPemilihan int    `json:"jenis_pemilihan" binding:"required"`
+		JenisPemeriksa int    `json:"jenis_pemeriksa" binding:"required"`
 		IdPaslon       int    `json:"id_paslon" binding:"required"`
 		Urutan         string `json:"urutan" binding:"required"`
 		Nama           string `json:"nama" binding:"required"`
@@ -27,7 +29,6 @@ type (
 
 	Pemeriksa struct {
 		IdPemeriksa     int        `json:"id_pemeriksa" binding:"required" gorm:"primaryKey"`
-		JenisPemilihan  int        `json:"jenis_pemilihan" binding:"required"`
 		Url             string     `json:"url" binding:"required"`
 		WaktuUrl        *time.Time `json:"waktu_url" binding:"required"`
 		KeteranganUrl   string     `json:"keterangan_url" binding:"required"`
@@ -46,10 +47,14 @@ func (p PetugasTps) RegisterPetugas(userRegisterData forms.PetugasRegisterData) 
 		return nil, err
 	}
 
-	db.Model(&petugasTps).
-		Update("msisdn", userRegisterData.Msisdn).
-		Update("device_id", userRegisterData.DeviceId).
-		Update("password", userRegisterData.Password)
+	fmt.Println("halo")
+	fmt.Println(userRegisterData.DeviceId)
+
+	db.Model(&petugasTps).Updates(PetugasTps{
+		Msisdn:   userRegisterData.Msisdn,
+		DeviceId: userRegisterData.DeviceId,
+		Password: userRegisterData.Password,
+	})
 
 	return &petugasTps, nil
 }
@@ -77,16 +82,47 @@ func (p Pemeriksa) RegisterPemeriksa(userRegisterData forms.PemeriksaRegisterDat
 		Nama:           userRegisterData.Nama,
 		Nik:            userRegisterData.Nik,
 		NoHandphone:    userRegisterData.NoHandphone,
+		JenisPemilihan: userRegisterData.JenisPemilihan,
 	}
 
 	db.Create(&petugasTps)
 
 	pemeriksa := Pemeriksa{
-		IdPemeriksa:    petugasTps.IdPetugas,
-		JenisPemilihan: userRegisterData.JenisPemilihan,
+		IdPemeriksa: petugasTps.IdPetugas,
 	}
 
 	db.Create(&pemeriksa)
 
 	return &petugasTps, nil
+}
+
+func (p Pemeriksa) GetPetugasTpsByIdPetugas(idPetugas int) (PetugasTps, error) {
+	db := db.GetDB()
+
+	petugasTps := PetugasTps{}
+
+	result := db.Where("id_petugas = ?", idPetugas).First(&petugasTps)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return PetugasTps{}, result.Error
+	}
+
+	return petugasTps, nil
+}
+
+func (p Pemeriksa) GetAllPemeriksaByTps(idTps int) ([]PetugasTps, error) {
+	db := db.GetDB()
+
+	petugasTpsList := []PetugasTps{}
+
+	result := db.Where("id_tps = ?", idTps).
+		Where("jenis_pemeriksa IS NOT NULL").
+		Find(&petugasTpsList)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		print(result.Error)
+		return []PetugasTps{}, result.Error
+	}
+
+	return petugasTpsList, nil
 }
