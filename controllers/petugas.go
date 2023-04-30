@@ -71,9 +71,11 @@ func (p PetugasController) GetPetugasTpsByIdPetugas(c *gin.Context) {
 	}
 }
 
-func (p PetugasController) GetAllPemeriksaByTps(c *gin.Context) {
+func (p PetugasController) GetAllPemeriksaByTpsAndJenisPemilihan(c *gin.Context) {
 
-	idTps := c.Param("id_tps")
+	params := c.Request.URL.Query()
+
+	idTps := params.Get("id_tps")
 
 	if idTps == "" {
 		c.String(http.StatusBadRequest, "Id TPS is not provided!")
@@ -85,7 +87,19 @@ func (p PetugasController) GetAllPemeriksaByTps(c *gin.Context) {
 		return
 	}
 
-	petugasTpsList, err := pemeriksaModel.GetAllPemeriksaByTps(integerIdTps)
+	jenisPemilihan := params.Get("jenis_pemilihan")
+
+	if jenisPemilihan == "" {
+		c.String(http.StatusBadRequest, "Jenis Pemilihan is not provided!")
+		return
+	}
+	integerJenisPemilihan, err := strconv.Atoi(jenisPemilihan)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Jenis Pemilihan is not valid!")
+		return
+	}
+
+	petugasTpsList, err := pemeriksaModel.GetAllPemeriksaByTpsAndJenisPemilihan(integerIdTps, integerJenisPemilihan)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return

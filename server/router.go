@@ -56,7 +56,7 @@ func NewRouter() *gin.Engine {
 	router.POST("/register", petugas.RegisterPetugas)
 	router.POST("/register-pemeriksa", petugas.RegisterPemeriksa)
 	router.GET("/petugas/:id_petugas", petugas.GetPetugasTpsByIdPetugas)
-	router.GET("/petugas/all-pemeriksa/:id_tps", petugas.GetAllPemeriksaByTps)
+	router.GET("/petugas/all-pemeriksa", petugas.GetAllPemeriksaByTpsAndJenisPemilihan)
 
 	// Suara C
 	router.GET("/suara-c/get-suara-c-final", suaraC.GetSuaraCFinal)

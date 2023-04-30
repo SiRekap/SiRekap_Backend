@@ -106,12 +106,12 @@ func (p Pemeriksa) GetPetugasTpsByIdPetugas(idPetugas int) (PetugasTps, error) {
 	return petugasTps, nil
 }
 
-func (p Pemeriksa) GetAllPemeriksaByTps(idTps int) ([]PetugasTps, error) {
+func (p Pemeriksa) GetAllPemeriksaByTpsAndJenisPemilihan(idTps int, jenisPemilihan int) ([]PetugasTps, error) {
 	db := db.GetDB()
 
 	petugasTpsList := []PetugasTps{}
 
-	result := db.Where("id_tps = ?", idTps).
+	result := db.Where("id_tps = ? AND jenis_pemilihan = ?", idTps, jenisPemilihan).
 		Where("jenis_pemeriksa IS NOT NULL").
 		Find(&petugasTpsList)
 

@@ -13,9 +13,9 @@ type FormcImageRawResponse struct {
 }
 
 type FormcImageVisionRequest struct {
-	IdImageList  []int    `json:"id_image_list" binding:"required"`
-	PayloadList  []string `json:"payload_list" binding:"required"`
-	IdPaslonList []int    `json:"id_paslon_list" binding:"required"`
+	IdImageList  []int    `json:"IdImageList" binding:"required"`
+	ImageUrlList []string `json:"ImageUrlList" binding:"required"`
+	IdPaslonList []int    `json:"IdPaslonList" binding:"required"`
 }
 
 type FormcImageVisionResponse struct {
@@ -66,8 +66,8 @@ type FormcImageVisionResponse struct {
 	JmlSuaraOcrList []int `json:"jml_suara_ocr_list" binding:"required"`
 	JmlSuaraOmrList []int `json:"jml_suara_omr_list" binding:"required"`
 
-	IdImageList  []int `json:"id_image_list" binding:"required"`
-	IdPaslonList []int `json:"id_paslon_list" binding:"required"`
+	IdImageList  []int `json:"IdImageList" binding:"required"`
+	IdPaslonList []int `json:"IdPaslonList" binding:"required"`
 }
 
 type FormcResultStreamProcessingRequest struct {

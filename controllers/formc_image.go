@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -10,6 +12,7 @@ import (
 	"sirekap/SiRekap_Backend/forms"
 	"sirekap/SiRekap_Backend/models"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -70,29 +73,48 @@ func (f FormcImageController) SendFormcImage(c *gin.Context) {
 func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
 	var formcImageRaw forms.FormcImageRaw
 
+	// Mengambil body JSON dari request frontend
 	if err := c.BindJSON(&formcImageRaw); err != nil {
 		c.String(http.StatusBadRequest, "Data is not complete!")
 		return
 	}
 
+	// Penyimpanan url dan informasi gambar
 	form, err := models.SendFormcImageRaw(formcImageRaw)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	// TODO: Async
-	_, err = SendFormcImageVisionRequest(*form)
+	// Pengiriman gambar untuk dipindai ke sistem vision
+	formcImageVisionResponse, err := SendFormcImageVisionRequest(*form)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
+	var wg sync.WaitGroup
+
+	// Penyimpanan hasil pemindaian ke database secara asynchronous
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err = SaveVisionResultToDatabase(formcImageVisionResponse)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+	}()
+
+	// Pengiriman hasil pemindaian ke stream processing secara asynchronous
+	// wg.Add(1)
 	// err = SendFormcResultStreamProcessingRequest(formcImageVisionResponse)
 	// if err != nil {
 	// 	c.String(http.StatusBadRequest, err.Error())
 	// 	return
 	// }
+
+	// wg.Wait()
 }
 
 func (f FormcImageController) SendFormcStatusData(c *gin.Context) {
@@ -130,164 +152,194 @@ func (f FormcImageController) SendFormcStatusImage(c *gin.Context) {
 }
 
 func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcImageVisionResponse, error) {
-	// formcImageVisionRequest := forms.FormcImageVisionRequest{
-	// 	IdImageList:  form.IdImageList,
-	// 	PayloadList:  form.FormcImageRaw.PayloadList,
-	// 	IdPaslonList: form.FormcImageRaw.IdPaslonList,
-	// }
+	formcImageVisionRequest := forms.FormcImageVisionRequest{
+		IdImageList:  form.IdImageList,
+		ImageUrlList: form.FormcImageRaw.PayloadList,
+		IdPaslonList: form.FormcImageRaw.IdPaslonList,
+	}
 
-	resp := forms.FormcImageVisionResponse{}
+	requestURL := "http://34.170.237.37/v1/read"
+	jsonBody, err := json.Marshal(formcImageVisionRequest)
+	if err != nil {
+		return forms.FormcImageVisionResponse{}, err
+	}
+
+	request, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return forms.FormcImageVisionResponse{}, err
+	}
+
+	request.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(request)
+	if err != nil {
+		return forms.FormcImageVisionResponse{}, err
+	}
+
+	defer res.Body.Close()
+
+	resp := &forms.FormcImageVisionResponse{}
+	err = json.NewDecoder(res.Body).Decode(resp)
+	if err != nil {
+		return forms.FormcImageVisionResponse{}, err
+	}
+
+	return *resp, nil
+}
+
+func SaveVisionResultToDatabase(form forms.FormcImageVisionResponse) error {
 
 	formcAdministrasiHlmSatuProses := models.FormcAdministrasiHlmSatuProses{
-		IdImage: resp.IdImageList[0],
+		IdImage: form.IdImageList[0],
 
-		PemilihDptL:    resp.PemilihDptL,
-		PemilihDptP:    resp.PemilihDptP,
-		PemilihDptJ:    resp.PemilihDptJ,
-		PemilihDpphL:   resp.PemilihDpphL,
-		PemilihDpphP:   resp.PemilihDpphP,
-		PemilihDpphJ:   resp.PemilihDpphJ,
-		PemilihDptbL:   resp.PemilihDptbL,
-		PemilihDptbP:   resp.PemilihDptbP,
-		PemilihDptbJ:   resp.PemilihDptbJ,
-		PemilihTotalL:  resp.PemilihTotalL,
-		PemilihTotalP:  resp.PemilihTotalP,
-		PemilihTotalJ:  resp.PemilihTotalJ,
-		PenggunaDptL:   resp.PenggunaDptL,
-		PenggunaDptP:   resp.PenggunaDptP,
-		PenggunaDptJ:   resp.PenggunaDptJ,
-		PenggunaDpphL:  resp.PenggunaDpphL,
-		PenggunaDpphP:  resp.PenggunaDpphP,
-		PenggunaDpphJ:  resp.PenggunaDpphJ,
-		PenggunaDptbL:  resp.PenggunaDptbL,
-		PenggunaDptbP:  resp.PenggunaDptbP,
-		PenggunaDptbJ:  resp.PenggunaDptbJ,
-		PenggunaTotalL: resp.PenggunaTotalL,
-		PenggunaTotalP: resp.PenggunaTotalP,
-		PenggunaTotalJ: resp.PenggunaTotalJ,
+		PemilihDptL:    form.PemilihDptL,
+		PemilihDptP:    form.PemilihDptP,
+		PemilihDptJ:    form.PemilihDptJ,
+		PemilihDpphL:   form.PemilihDpphL,
+		PemilihDpphP:   form.PemilihDpphP,
+		PemilihDpphJ:   form.PemilihDpphJ,
+		PemilihDptbL:   form.PemilihDptbL,
+		PemilihDptbP:   form.PemilihDptbP,
+		PemilihDptbJ:   form.PemilihDptbJ,
+		PemilihTotalL:  form.PemilihTotalL,
+		PemilihTotalP:  form.PemilihTotalP,
+		PemilihTotalJ:  form.PemilihTotalJ,
+		PenggunaDptL:   form.PenggunaDptL,
+		PenggunaDptP:   form.PenggunaDptP,
+		PenggunaDptJ:   form.PenggunaDptJ,
+		PenggunaDpphL:  form.PenggunaDpphL,
+		PenggunaDpphP:  form.PenggunaDpphP,
+		PenggunaDpphJ:  form.PenggunaDpphJ,
+		PenggunaDptbL:  form.PenggunaDptbL,
+		PenggunaDptbP:  form.PenggunaDptbP,
+		PenggunaDptbJ:  form.PenggunaDptbJ,
+		PenggunaTotalL: form.PenggunaTotalL,
+		PenggunaTotalP: form.PenggunaTotalP,
+		PenggunaTotalJ: form.PenggunaTotalJ,
 
-		PemilihDisabilitasL:  resp.PemilihDisabilitasL,
-		PemilihDisabilitasP:  resp.PemilihDisabilitasP,
-		PemilihDisabilitasJ:  resp.PemilihDisabilitasJ,
-		PenggunaDisabilitasL: resp.PenggunaDisabilitasL,
-		PenggunaDisabilitasP: resp.PenggunaDisabilitasP,
-		PenggunaDisabilitasJ: resp.PenggunaDisabilitasJ,
+		PemilihDisabilitasL:  form.PemilihDisabilitasL,
+		PemilihDisabilitasP:  form.PemilihDisabilitasP,
+		PemilihDisabilitasJ:  form.PemilihDisabilitasJ,
+		PenggunaDisabilitasL: form.PenggunaDisabilitasL,
+		PenggunaDisabilitasP: form.PenggunaDisabilitasP,
+		PenggunaDisabilitasJ: form.PenggunaDisabilitasJ,
 
-		SuratDiterima:       resp.SuratDiterima,
-		SuratDikembalikan:   resp.SuratDikembalikan,
-		SuratTidakDigunakan: resp.SuratTidakDigunakan,
-		SuratDigunakan:      resp.SuratDigunakan,
+		SuratDiterima:       form.SuratDiterima,
+		SuratDikembalikan:   form.SuratDikembalikan,
+		SuratTidakDigunakan: form.SuratTidakDigunakan,
+		SuratDigunakan:      form.SuratDigunakan,
 	}
 
 	_, err := models.SendFormcAdministrasiHlmSatuProses(formcAdministrasiHlmSatuProses)
 	if err != nil {
-		return resp, err
+		return err
 	}
 
 	formcAdministrasiHlmSatuFinal := models.FormcAdministrasiHlmSatuFinal{
-		IdImage: resp.IdImageList[0],
+		IdImage: form.IdImageList[0],
 		IsBenar: true,
 	}
 
 	_, err = models.SendFormcAdministrasiHlmSatuFinal(formcAdministrasiHlmSatuFinal)
 	if err != nil {
-		return resp, err
+		return err
 	}
 
 	formcAdministrasiHlmDuaProses := models.FormcAdministrasiHlmDuaProses{
-		IdImage: resp.IdImageList[1],
+		IdImage: form.IdImageList[1],
 
-		SuaraSah:            resp.SuaraSah,
-		SuaraTidakSah:       resp.SuaraTidakSah,
-		SuaraTotal:          resp.SuaraTotal,
-		PenggunaHakPilih:    resp.PenggunaHakPilih,
-		SuratSuaraDigunakan: resp.SuratSuaraDigunakan,
+		SuaraSah:            form.SuaraSah,
+		SuaraTidakSah:       form.SuaraTidakSah,
+		SuaraTotal:          form.SuaraTotal,
+		PenggunaHakPilih:    form.PenggunaHakPilih,
+		SuratSuaraDigunakan: form.SuratSuaraDigunakan,
 	}
 
 	_, err = models.SendFormcAdministrasiHlmDuaProses(formcAdministrasiHlmDuaProses)
 	if err != nil {
-		return resp, err
+		return err
 	}
 
 	formcAdministrasiHlmDuaFinal := models.FormcAdministrasiHlmDuaFinal{
-		IdImage: resp.IdImageList[1],
+		IdImage: form.IdImageList[1],
 		IsBenar: true,
 	}
 
 	_, err = models.SendFormcAdministrasiHlmDuaFinal(formcAdministrasiHlmDuaFinal)
 	if err != nil {
-		return resp, err
+		return err
 	}
 
 	var formcImage models.FormcImage
 	err = formcImage.GetFormcImage(form.IdImageList[0])
 	if err != nil {
-		return resp, err
+		return err
 	}
 
 	formcImagePayload := models.FormcImagePayload{}
 
-	err = formcImagePayload.GetFormcImagePayload(resp.IdImageList[0])
+	err = formcImagePayload.GetFormcImagePayload(form.IdImageList[0])
 	if err != nil {
-		return resp, err
+		return err
 	}
 	img1Url := formcImagePayload.Payload
 
-	err = formcImagePayload.GetFormcImagePayload(resp.IdImageList[1])
+	err = formcImagePayload.GetFormcImagePayload(form.IdImageList[1])
 	if err != nil {
-		return resp, err
+		return err
 	}
 	img2Url := formcImagePayload.Payload
 
-	err = formcImagePayload.GetFormcImagePayload(resp.IdImageList[2])
+	err = formcImagePayload.GetFormcImagePayload(form.IdImageList[2])
 	if err != nil {
-		return resp, err
+		return err
 	}
 	img3Url := formcImagePayload.Payload
 
-	pdfFileName := "kesesuaian-" + strconv.Itoa(resp.IdImageList[0]+resp.IdImageList[1]+resp.IdImageList[2]) + ".pdf"
+	pdfFileName := "kesesuaian-" + strconv.Itoa(form.IdImageList[0]+form.IdImageList[1]+form.IdImageList[2]) + ".pdf"
 	err = GeneratePdfAndSendToBucket(img1Url, img2Url, img3Url, pdfFileName)
 
 	formcImageGroup := models.FormcImageGroup{
 		IdTps:          formcImage.IdTps,
 		JenisPemilihan: formcImage.JenisPemilihan,
-		IdImageHlm1:    resp.IdImageList[0],
-		IdImageHlm2:    resp.IdImageList[1],
-		IdImageHlm3:    resp.IdImageList[2],
+		IdImageHlm1:    form.IdImageList[0],
+		IdImageHlm2:    form.IdImageList[1],
+		IdImageHlm3:    form.IdImageList[2],
 		PdfUrl:         "https://storage.googleapis.com/staging-sirekap-form/pdf/" + pdfFileName,
 	}
 
 	_, err = formcImageGroup.SendFormcImageGroup()
 	if err != nil {
-		return resp, err
+		return err
 	}
 
-	for i := 0; i < len(resp.IdPaslonList); i++ {
+	for i := 0; i < len(form.IdPaslonList); i++ {
 		suaracProses := models.SuaraCProses{
-			IdImage:     resp.IdImageList[2],
-			IdPaslon:    resp.IdPaslonList[i],
-			JmlSuaraOcr: resp.JmlSuaraOcrList[i],
-			JmlSuaraOmr: resp.JmlSuaraOmrList[i],
+			IdImage:     form.IdImageList[2],
+			IdPaslon:    form.IdPaslonList[i],
+			JmlSuaraOcr: form.JmlSuaraOcrList[i],
+			JmlSuaraOmr: form.JmlSuaraOmrList[i],
 		}
 
 		_, err = models.SendSuaraCProses(suaracProses)
 		if err != nil {
-			return resp, err
+			return err
 		}
 
 		suaracFinal := models.SuaraCFinal{
-			IdImage:  resp.IdImageList[2],
-			IdPaslon: resp.IdPaslonList[i],
-			JmlSuara: resp.JmlSuaraOcrList[i],
+			IdImage:  form.IdImageList[2],
+			IdPaslon: form.IdPaslonList[i],
+			JmlSuara: form.JmlSuaraOcrList[i],
 		}
 
 		_, err = models.SendSuaraCFinal(suaracFinal)
 		if err != nil {
-			return resp, err
+			return err
 		}
 	}
 
-	return resp, nil
+	return nil
 }
 
 func GeneratePdfAndSendToBucket(img1url string, img2url string, img3url string, pdfFileName string) error {
@@ -380,8 +432,10 @@ func (c *ClientUploader) UploadFile(file *os.File, object string) error {
 }
 
 func (f FormcImageController) GetFormcImageGroupByIdTpsAndJenisPemilihan(c *gin.Context) {
-	idTps := c.Param("id_tps")
-	jenisPemilihan := c.Param("jenis_pemilihan")
+	params := c.Request.URL.Query()
+
+	idTps := params.Get("id_tps")
+	jenisPemilihan := params.Get("jenis_pemilihan")
 	if idTps == "" || jenisPemilihan == "" {
 		c.String(http.StatusBadRequest, "Id Tps is not provided or Jenis Pemilihan is not provided!")
 		return
