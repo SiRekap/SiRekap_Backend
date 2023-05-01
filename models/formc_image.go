@@ -51,44 +51,44 @@ type (
 	}
 )
 
-func (f FormcImagePayload) SendFormcImagePayload() (*FormcImagePayload, error) {
+func (f FormcImagePayload) SendFormcImagePayload(form FormcImagePayload) (*FormcImagePayload, error) {
 	db := db.GetDB()
 
-	db.Create(&f)
+	db.Create(&form)
 
-	return &f, nil
+	return &form, nil
 }
 
-func (f FormcImagePayload) GetFormcImagePayload(idImage int) error {
+func (f FormcImagePayload) GetFormcImagePayload(idImage int) (FormcImagePayload, error) {
 	db := db.GetDB()
 
-	f = FormcImagePayload{
+	formcImagePayload := FormcImagePayload{
 		IdImage: idImage,
 	}
 
-	result := db.First(&f)
+	result := db.First(&formcImagePayload)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return result.Error
+		return FormcImagePayload{}, result.Error
 	}
 
-	return nil
+	return formcImagePayload, nil
 }
 
-func (f FormcImage) GetFormcImage(idImage int) error {
+func (f FormcImage) GetFormcImage(idImage int) (FormcImage, error) {
 	db := db.GetDB()
 
-	f = FormcImage{
+	formcImage := FormcImage{
 		IdImage: idImage,
 	}
 
-	result := db.First(&f)
+	result := db.First(&formcImage)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return result.Error
+		return FormcImage{}, result.Error
 	}
 
-	return nil
+	return formcImage, nil
 }
 
 func (f FormcImage) SendFormcImage() (*FormcImage, error) {
@@ -137,7 +137,7 @@ func (f FormcImageGroup) GetFormcImageGroupByIdTpsAndJenisPemilihan(idTps int, j
 	return formcImageGroup, nil
 }
 
-func SendFormcImageRaw(formcImageRaw forms.FormcImageRaw) (*forms.FormcImageRawResponse, error) {
+func SendFormcImageRaw(formcImageRaw forms.FormcImageRaw) (forms.FormcImageRawResponse, error) {
 
 	idImageList := make([]int, 0)
 
@@ -147,7 +147,7 @@ func SendFormcImageRaw(formcImageRaw forms.FormcImageRaw) (*forms.FormcImageRawR
 			Payload: formcImageRaw.PayloadList[i],
 		}
 
-		resPayload, _ := formImagePayload.SendFormcImagePayload()
+		resPayload, _ := formImagePayload.SendFormcImagePayload(formImagePayload)
 
 		formcImage := FormcImage{
 			IdImage:        resPayload.IdImage,
@@ -161,7 +161,7 @@ func SendFormcImageRaw(formcImageRaw forms.FormcImageRaw) (*forms.FormcImageRawR
 		idImageList = append(idImageList, resPayload.IdImage)
 	}
 
-	return &forms.FormcImageRawResponse{
+	return forms.FormcImageRawResponse{
 		FormcImageRaw: formcImageRaw,
 		IdImageList:   idImageList,
 	}, nil

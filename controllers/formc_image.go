@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"context"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -15,6 +16,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/gin-gonic/gin"
 
 	"github.com/signintech/gopdf"
@@ -44,7 +46,7 @@ func (f FormcImageController) SendFormcImagePayload(c *gin.Context) {
 		return
 	}
 
-	form, err := formcImagePayload.SendFormcImagePayload()
+	form, err := formcImagePayload.SendFormcImagePayload(formcImagePayload)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -87,11 +89,13 @@ func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
 	}
 
 	// Pengiriman gambar untuk dipindai ke sistem vision
-	formcImageVisionResponse, err := SendFormcImageVisionRequest(*form)
+	formcImageVisionResponse, err := SendFormcImageVisionRequest(form)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
+
+	fmt.Println(formcImageVisionResponse.IdImageList)
 
 	var wg sync.WaitGroup
 
@@ -107,14 +111,17 @@ func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
 	}()
 
 	// Pengiriman hasil pemindaian ke stream processing secara asynchronous
-	// wg.Add(1)
-	// err = SendFormcResultStreamProcessingRequest(formcImageVisionResponse)
-	// if err != nil {
-	// 	c.String(http.StatusBadRequest, err.Error())
-	// 	return
-	// }
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err = SendFormcResultStreamProcessingRequest(formcImageVisionResponse)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+	}()
 
-	// wg.Wait()
+	wg.Wait()
 }
 
 func (f FormcImageController) SendFormcStatusData(c *gin.Context) {
@@ -152,6 +159,7 @@ func (f FormcImageController) SendFormcStatusImage(c *gin.Context) {
 }
 
 func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcImageVisionResponse, error) {
+	fmt.Println(form)
 	formcImageVisionRequest := forms.FormcImageVisionRequest{
 		IdImageList:  form.IdImageList,
 		ImageUrlList: form.FormcImageRaw.PayloadList,
@@ -184,6 +192,8 @@ func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcI
 	if err != nil {
 		return forms.FormcImageVisionResponse{}, err
 	}
+
+	fmt.Println(resp)
 
 	return *resp, nil
 }
@@ -271,34 +281,43 @@ func SaveVisionResultToDatabase(form forms.FormcImageVisionResponse) error {
 		return err
 	}
 
-	var formcImage models.FormcImage
-	err = formcImage.GetFormcImage(form.IdImageList[0])
+	var formcImageModel models.FormcImage
+	formcImage, err := formcImageModel.GetFormcImage(form.IdImageList[0])
 	if err != nil {
 		return err
 	}
 
-	formcImagePayload := models.FormcImagePayload{}
+	formcImagePayloadModel := models.FormcImagePayload{}
 
-	err = formcImagePayload.GetFormcImagePayload(form.IdImageList[0])
+	formcImagePayload, err := formcImagePayloadModel.GetFormcImagePayload(form.IdImageList[0])
 	if err != nil {
 		return err
 	}
 	img1Url := formcImagePayload.Payload
 
-	err = formcImagePayload.GetFormcImagePayload(form.IdImageList[1])
+	formcImagePayload, err = formcImagePayloadModel.GetFormcImagePayload(form.IdImageList[1])
 	if err != nil {
 		return err
 	}
 	img2Url := formcImagePayload.Payload
 
-	err = formcImagePayload.GetFormcImagePayload(form.IdImageList[2])
+	formcImagePayload, err = formcImagePayloadModel.GetFormcImagePayload(form.IdImageList[2])
 	if err != nil {
 		return err
 	}
 	img3Url := formcImagePayload.Payload
 
 	pdfFileName := "kesesuaian-" + strconv.Itoa(form.IdImageList[0]+form.IdImageList[1]+form.IdImageList[2]) + ".pdf"
+
 	err = GeneratePdfAndSendToBucket(img1Url, img2Url, img3Url, pdfFileName)
+	if err != nil {
+		panic(err)
+	}
+
+	err = DeleteGeneratedLocalFiles(pdfFileName)
+	if err != nil {
+		panic(err)
+	}
 
 	formcImageGroup := models.FormcImageGroup{
 		IdTps:          formcImage.IdTps,
@@ -351,19 +370,19 @@ func GeneratePdfAndSendToBucket(img1url string, img2url string, img3url string, 
 		return err
 	}
 	pdf.AddPage()
-	pdf.Image("img1url.jpg", 0, 0, nil)
+	pdf.Image("img1url.jpg", 0, 0, &gopdf.Rect{W: 595.28, H: 841.89})
 
 	if err := DownloadFile("img2url.jpg", img2url); err != nil {
 		return err
 	}
 	pdf.AddPage()
-	pdf.Image("img2url.jpg", 0, 0, nil)
+	pdf.Image("img2url.jpg", 0, 0, &gopdf.Rect{W: 595.28, H: 841.89})
 
 	if err := DownloadFile("img3url.jpg", img3url); err != nil {
 		return err
 	}
 	pdf.AddPage()
-	pdf.Image("img3url.jpg", 0, 0, nil)
+	pdf.Image("img3url.jpg", 0, 0, &gopdf.Rect{W: 595.28, H: 841.89})
 
 	pdf.WritePdf(pdfFileName)
 
@@ -385,9 +404,35 @@ func GeneratePdfAndSendToBucket(img1url string, img2url string, img3url string, 
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
 	err = uploader.UploadFile(file, pdfFileName)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	return nil
+}
+
+func DeleteGeneratedLocalFiles(pdfFileName string) error {
+
+	err := os.Remove("img1url.jpg")
+	if err != nil {
+		return err
+	}
+
+	err = os.Remove("img2url.jpg")
+	if err != nil {
+		return err
+	}
+
+	err = os.Remove("img3url.jpg")
+	if err != nil {
+		return err
+	}
+
+	err = os.Remove(pdfFileName)
 	if err != nil {
 		return err
 	}
@@ -420,6 +465,7 @@ func (c *ClientUploader) UploadFile(file *os.File, object string) error {
 	defer cancel()
 
 	// Upload an object with storage.Writer.
+	fmt.Println("masuk upload")
 	wc := c.cl.Bucket(c.bucketName).Object(c.uploadPath + object).NewWriter(ctx)
 	if _, err := io.Copy(wc, file); err != nil {
 		return fmt.Errorf("io.Copy: %v", err)
@@ -463,131 +509,133 @@ func (f FormcImageController) GetFormcImageGroupByIdTpsAndJenisPemilihan(c *gin.
 	}
 }
 
-// func SendFormcResultStreamProcessingRequest(form forms.FormcImageVisionResponse) error {
-// 	var formcImage models.FormcImage
+func SendFormcResultStreamProcessingRequest(form forms.FormcImageVisionResponse) error {
+	var formcImageModel models.FormcImage
 
-// 	for i := 0; i < len(form.IdPaslonList); i++ {
-// 		err := formcImage.GetFormcImage(form.IdImageList[i])
-// 		if err != nil {
-// 			return err
-// 		}
+	for i := 0; i < len(form.IdPaslonList); i++ {
+		formcImage, err := formcImageModel.GetFormcImage(form.IdImageList[i])
+		if err != nil {
+			return err
+		}
 
-// 		tps, err := models.GetTpsById(formcImage.IdTps)
-// 		if err != nil {
-// 			return err
-// 		}
+		tps, err := models.GetTpsById(formcImage.IdTps)
+		if err != nil {
+			return err
+		}
 
-// 		fullWilayahIdList, err := models.GetFullWilayahIdList(tps.IdWilayahDasar)
+		fullWilayahIdList, err := models.GetFullWilayahIdList(tps.IdWilayahDasar)
 
-// 		formcResultStreamProcessingRequest := forms.FormcResultStreamProcessingRequest{
-// 			IdTps:           formcImage.IdTps,
-// 			IdKelurahan:     fullWilayahIdList.IdKelurahan,
-// 			IdKecamatan:     fullWilayahIdList.IdKecamatan,
-// 			IdKabupatenKota: fullWilayahIdList.IdKabupatenKota,
-// 			IdProvinsi:      fullWilayahIdList.IdProvinsi,
-// 			IdPaslon:        form.IdPaslonList[i],
-// 			JmlSuara:        form.JmlSuaraOcrList[i],
-// 			JenisPemilihan:  formcImage.JenisPemilihan,
-// 		}
+		formcResultStreamProcessingRequest := forms.FormcResultStreamProcessingRequest{
+			IdTps:           formcImage.IdTps,
+			IdKelurahan:     fullWilayahIdList.IdKelurahan,
+			IdKecamatan:     fullWilayahIdList.IdKecamatan,
+			IdKabupatenKota: fullWilayahIdList.IdKabupatenKota,
+			IdProvinsi:      fullWilayahIdList.IdProvinsi,
+			IdPaslon:        form.IdPaslonList[i],
+			JmlSuara:        form.JmlSuaraOcrList[i],
+			JenisPemilihan:  formcImage.JenisPemilihan,
+		}
 
-// 		p, err := kafka.NewProducer(&kafka.ConfigMap{
-// 			"bootstrap.servers": "sulky.srvs.cloudkafka.com:9094",
-// 			"sasl.jaas.config":  "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"jetffmjg\" password=\"7LXhVBsEndIGSHeBmDComfQaajZVpWPZ\";",
-// 		})
-// 		if err != nil {
-// 			panic(err)
-// 		}
+		p, err := kafka.NewProducer(&kafka.ConfigMap{
+			"bootstrap.servers": "sulky.srvs.cloudkafka.com:9094",
+			"sasl.username":     "jetffmjg",
+			"sasl.password":     "7LXhVBsEndIGSHeBmDComfQaajZVpWPZ",
+			"security.protocol": "SASL_SSL",
+			"sasl.mechanisms":   "PLAIN",
+		})
+		if err != nil {
+			panic(err)
+		}
 
-// 		defer p.Close()
+		defer p.Close()
 
-// 		// Delivery report handler for produced messages
-// 		go func() {
-// 			for e := range p.Events() {
-// 				switch ev := e.(type) {
-// 				case *kafka.Message:
-// 					if ev.TopicPartition.Error != nil {
-// 						fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
-// 					} else {
-// 						fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
-// 					}
-// 				}
-// 			}
-// 		}()
+		// Delivery report handler for produced messages
+		go func() {
+			for e := range p.Events() {
+				switch ev := e.(type) {
+				case *kafka.Message:
+					if ev.TopicPartition.Error != nil {
+						fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
+					} else {
+						fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
+					}
+				}
+			}
+		}()
 
-// 		var formcResultStreamProcessingRequestBuffer bytes.Buffer
-// 		enc := gob.NewEncoder(&formcResultStreamProcessingRequestBuffer)
-// 		err = enc.Encode(formcResultStreamProcessingRequest)
-// 		if err != nil {
-// 			return err
-// 		}
+		var formcResultStreamProcessingRequestBuffer bytes.Buffer
+		enc := gob.NewEncoder(&formcResultStreamProcessingRequestBuffer)
+		err = enc.Encode(formcResultStreamProcessingRequest)
+		if err != nil {
+			return err
+		}
 
-// 		// Produce messages to topic (asynchronously)
-// 		topic := "jetffmjg-sirekap-vote"
-// 		p.Produce(&kafka.Message{
-// 			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-// 			Value:          []byte(formcResultStreamProcessingRequestBuffer.Bytes()),
-// 		}, nil)
+		// Produce messages to topic (asynchronously)
+		topic := "jetffmjg-sirekap-vote"
+		p.Produce(&kafka.Message{
+			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+			Value:          []byte(formcResultStreamProcessingRequestBuffer.Bytes()),
+		}, nil)
 
-// 		// Wait for message deliveries before shutting down
-// 		p.Flush(15 * 1000)
-// 	}
+		// Wait for message deliveries before shutting down
+		p.Flush(15 * 1000)
+	}
 
-// 	return nil
-// }
+	return nil
+}
 
-// func SendFormcResultStreamProcessingRequestTest() error {
+func SendFormcResultStreamProcessingRequestTest() error {
 
-// 	formcResultStreamProcessingRequest := forms.FormcResultStreamProcessingRequest{
-// 		IdTps:           1,
-// 		IdKelurahan:     2,
-// 		IdKecamatan:     3,
-// 		IdKabupatenKota: 4,
-// 		IdProvinsi:      5,
-// 		IdPaslon:        6,
-// 		JmlSuara:        100,
-// 		JenisPemilihan:  2,
-// 	}
+	formcResultStreamProcessingRequest := forms.FormcResultStreamProcessingRequest{
+		IdTps:           1,
+		IdKelurahan:     2,
+		IdKecamatan:     3,
+		IdKabupatenKota: 4,
+		IdProvinsi:      5,
+		IdPaslon:        6,
+		JmlSuara:        100,
+		JenisPemilihan:  2,
+	}
 
-// 	p, err := kafka.NewProducer(&kafka.ConfigMap{
-// 		"bootstrap.servers": "sulky.srvs.cloudkafka.com:9094",
-// 		"sasl.jaas.config":  "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"jetffmjg\" password=\"7LXhVBsEndIGSHeBmDComfQaajZVpWPZ\";",
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
+	p, err := kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers": "35.238.208.74:9092",
+	})
+	if err != nil {
+		return err
+	}
 
-// 	defer p.Close()
+	defer p.Close()
 
-// 	// Delivery report handler for produced messages
-// 	go func() {
-// 		for e := range p.Events() {
-// 			switch ev := e.(type) {
-// 			case *kafka.Message:
-// 				if ev.TopicPartition.Error != nil {
-// 					fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
-// 				} else {
-// 					fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
-// 				}
-// 			}
-// 		}
-// 	}()
+	// Delivery report handler for produced messages
+	go func() {
+		for e := range p.Events() {
+			switch ev := e.(type) {
+			case *kafka.Message:
+				if ev.TopicPartition.Error != nil {
+					fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
+				} else {
+					fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
+				}
+			}
+		}
+	}()
 
-// 	var formcResultStreamProcessingRequestBuffer bytes.Buffer
-// 	enc := gob.NewEncoder(&formcResultStreamProcessingRequestBuffer)
-// 	err = enc.Encode(formcResultStreamProcessingRequest)
-// 	if err != nil {
-// 		return err
-// 	}
+	var formcResultStreamProcessingRequestBuffer bytes.Buffer
+	enc := gob.NewEncoder(&formcResultStreamProcessingRequestBuffer)
+	err = enc.Encode(formcResultStreamProcessingRequest)
+	if err != nil {
+		return err
+	}
 
-// 	// Produce messages to topic (asynchronously)
-// 	topic := "jetffmjg-sirekap-vote"
-// 	p.Produce(&kafka.Message{
-// 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-// 		Value:          []byte(formcResultStreamProcessingRequestBuffer.Bytes()),
-// 	}, nil)
+	// Produce messages to topic (asynchronously)
+	topic := "vote"
+	p.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          []byte(formcResultStreamProcessingRequestBuffer.Bytes()),
+	}, nil)
 
-// 	// Wait for message deliveries before shutting down
-// 	p.Flush(15 * 1000)
+	// Wait for message deliveries before shutting down
+	p.Flush(15 * 1000)
 
-// 	return nil
-// }
+	return nil
+}

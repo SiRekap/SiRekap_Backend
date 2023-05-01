@@ -23,10 +23,10 @@ func main() {
 	server.Init()
 
 	// controllers.GeneratePdfAndSendToBucket(
-	// 	"https://wallpapers.com/images/featured/2ygv7ssy2k0lxlzu.jpg",
-	// 	"https://wallpapers.com/images/featured/2ygv7ssy2k0lxlzu.jpg",
-	// 	"https://wallpapers.com/images/featured/2ygv7ssy2k0lxlzu.jpg",
-	// 	"12",
+	// 	"http://i.ibb.co/0YdPt2F/Whats-App-Image-2023-04-27-at-6-30-05-AM.jpg",
+	// 	"http://storage.googleapis.com/staging-sirekap-form/1682425578819.png",
+	// 	"http://storage.googleapis.com/staging-sirekap-form/1682425575786.png",
+	// 	"204.pdf",
 	// )
 
 	// res, err := controllers.SendFormcImageVisionRequest(forms.FormcImageRawResponse{
