@@ -16,7 +16,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/Shopify/sarama"
 	"github.com/gin-gonic/gin"
 
 	"github.com/signintech/gopdf"
@@ -95,8 +95,6 @@ func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(formcImageVisionResponse.IdImageList)
-
 	var wg sync.WaitGroup
 
 	// Penyimpanan hasil pemindaian ke database secara asynchronous
@@ -159,7 +157,6 @@ func (f FormcImageController) SendFormcStatusImage(c *gin.Context) {
 }
 
 func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcImageVisionResponse, error) {
-	fmt.Println(form)
 	formcImageVisionRequest := forms.FormcImageVisionRequest{
 		IdImageList:  form.IdImageList,
 		ImageUrlList: form.FormcImageRaw.PayloadList,
@@ -192,8 +189,6 @@ func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcI
 	if err != nil {
 		return forms.FormcImageVisionResponse{}, err
 	}
-
-	fmt.Println(resp)
 
 	return *resp, nil
 }
@@ -465,7 +460,6 @@ func (c *ClientUploader) UploadFile(file *os.File, object string) error {
 	defer cancel()
 
 	// Upload an object with storage.Writer.
-	fmt.Println("masuk upload")
 	wc := c.cl.Bucket(c.bucketName).Object(c.uploadPath + object).NewWriter(ctx)
 	if _, err := io.Copy(wc, file); err != nil {
 		return fmt.Errorf("io.Copy: %v", err)
@@ -536,33 +530,6 @@ func SendFormcResultStreamProcessingRequest(form forms.FormcImageVisionResponse)
 			JenisPemilihan:  formcImage.JenisPemilihan,
 		}
 
-		p, err := kafka.NewProducer(&kafka.ConfigMap{
-			"bootstrap.servers": "sulky.srvs.cloudkafka.com:9094",
-			"sasl.username":     "jetffmjg",
-			"sasl.password":     "7LXhVBsEndIGSHeBmDComfQaajZVpWPZ",
-			"security.protocol": "SASL_SSL",
-			"sasl.mechanisms":   "PLAIN",
-		})
-		if err != nil {
-			panic(err)
-		}
-
-		defer p.Close()
-
-		// Delivery report handler for produced messages
-		go func() {
-			for e := range p.Events() {
-				switch ev := e.(type) {
-				case *kafka.Message:
-					if ev.TopicPartition.Error != nil {
-						fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
-					} else {
-						fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
-					}
-				}
-			}
-		}()
-
 		var formcResultStreamProcessingRequestBuffer bytes.Buffer
 		enc := gob.NewEncoder(&formcResultStreamProcessingRequestBuffer)
 		err = enc.Encode(formcResultStreamProcessingRequest)
@@ -570,15 +537,21 @@ func SendFormcResultStreamProcessingRequest(form forms.FormcImageVisionResponse)
 			return err
 		}
 
-		// Produce messages to topic (asynchronously)
-		topic := "jetffmjg-sirekap-vote"
-		p.Produce(&kafka.Message{
-			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-			Value:          []byte(formcResultStreamProcessingRequestBuffer.Bytes()),
-		}, nil)
-
-		// Wait for message deliveries before shutting down
-		p.Flush(15 * 1000)
+		brokersUrl := []string{"35.238.208.74:9092"}
+		producer, err := ConnectProducer(brokersUrl)
+		if err != nil {
+			return err
+		}
+		defer producer.Close()
+		msg := &sarama.ProducerMessage{
+			Topic: "vote",
+			Value: sarama.StringEncoder(formcResultStreamProcessingRequestBuffer.Bytes()),
+		}
+		partition, offset, err := producer.SendMessage(msg)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d)\n", "vote", partition, offset)
 	}
 
 	return nil
@@ -597,45 +570,74 @@ func SendFormcResultStreamProcessingRequestTest() error {
 		JenisPemilihan:  2,
 	}
 
-	p, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": "35.238.208.74:9092",
-	})
-	if err != nil {
-		return err
-	}
+	// p, err := kafka.NewProducer(&kafka.ConfigMap{
+	// 	"bootstrap.servers": "35.238.208.74:9092",
+	// })
+	// if err != nil {
+	// 	return err
+	// }
 
-	defer p.Close()
+	// defer p.Close()
 
-	// Delivery report handler for produced messages
-	go func() {
-		for e := range p.Events() {
-			switch ev := e.(type) {
-			case *kafka.Message:
-				if ev.TopicPartition.Error != nil {
-					fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
-				} else {
-					fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
-				}
-			}
-		}
-	}()
+	// // Delivery report handler for produced messages
+	// go func() {
+	// 	for e := range p.Events() {
+	// 		switch ev := e.(type) {
+	// 		case *kafka.Message:
+	// 			if ev.TopicPartition.Error != nil {
+	// 				fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
+	// 			} else {
+	// 				fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
+	// 			}
+	// 		}
+	// 	}
+	// }()
 
 	var formcResultStreamProcessingRequestBuffer bytes.Buffer
 	enc := gob.NewEncoder(&formcResultStreamProcessingRequestBuffer)
-	err = enc.Encode(formcResultStreamProcessingRequest)
+	err := enc.Encode(formcResultStreamProcessingRequest)
 	if err != nil {
 		return err
 	}
 
-	// Produce messages to topic (asynchronously)
-	topic := "vote"
-	p.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Value:          []byte(formcResultStreamProcessingRequestBuffer.Bytes()),
-	}, nil)
+	// // Produce messages to topic (asynchronously)
+	// topic := "vote"
+	// p.Produce(&kafka.Message{
+	// 	TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+	// 	Value:          []byte(formcResultStreamProcessingRequestBuffer.Bytes()),
+	// }, nil)
 
-	// Wait for message deliveries before shutting down
-	p.Flush(15 * 1000)
+	// // Wait for message deliveries before shutting down
+	// p.Flush(15 * 1000)
+
+	brokersUrl := []string{"35.238.208.74:9092"}
+	producer, err := ConnectProducer(brokersUrl)
+	if err != nil {
+		return err
+	}
+	defer producer.Close()
+	msg := &sarama.ProducerMessage{
+		Topic: "vote",
+		Value: sarama.StringEncoder(formcResultStreamProcessingRequestBuffer.Bytes()),
+	}
+	partition, offset, err := producer.SendMessage(msg)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Message is stored in topic(%s)/partition(%d)/offset(%d)\n", "vote", partition, offset)
 
 	return nil
+}
+
+func ConnectProducer(brokersUrl []string) (sarama.SyncProducer, error) {
+	config := sarama.NewConfig()
+	config.Producer.Return.Successes = true
+	config.Producer.RequiredAcks = sarama.WaitForAll
+	config.Producer.Retry.Max = 5
+	// NewSyncProducer creates a new SyncProducer using the given broker addresses and configuration.
+	conn, err := sarama.NewSyncProducer(brokersUrl, config)
+	if err != nil {
+		return nil, err
+	}
+	return conn, nil
 }
