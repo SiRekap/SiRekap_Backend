@@ -120,6 +120,8 @@ func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
 	}()
 
 	wg.Wait()
+
+	c.JSON(http.StatusOK, "Form C has been successfully delivered and recapitulated")
 }
 
 func (f FormcImageController) SendFormcStatusData(c *gin.Context) {
