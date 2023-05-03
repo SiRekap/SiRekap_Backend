@@ -165,7 +165,7 @@ func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcI
 		IdPaslonList: form.FormcImageRaw.IdPaslonList,
 	}
 
-	requestURL := "http://34.170.237.37/v1/read"
+	requestURL := "http://35.184.140.99/v1/read"
 	jsonBody, err := json.Marshal(formcImageVisionRequest)
 	if err != nil {
 		return forms.FormcImageVisionResponse{}, err
@@ -539,7 +539,7 @@ func SendFormcResultStreamProcessingRequest(form forms.FormcImageVisionResponse)
 			return err
 		}
 
-		brokersUrl := []string{"35.238.208.74:9092"}
+		brokersUrl := []string{"34.70.240.187:9092"}
 		producer, err := ConnectProducer(brokersUrl)
 		if err != nil {
 			return err
@@ -612,7 +612,7 @@ func SendFormcResultStreamProcessingRequestTest() error {
 	// // Wait for message deliveries before shutting down
 	// p.Flush(15 * 1000)
 
-	brokersUrl := []string{"35.238.208.74:9092"}
+	brokersUrl := []string{"34.70.240.187:9092"}
 	producer, err := ConnectProducer(brokersUrl)
 	if err != nil {
 		return err
