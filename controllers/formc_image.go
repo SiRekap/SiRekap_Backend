@@ -158,6 +158,16 @@ func (f FormcImageController) SendFormcStatusImage(c *gin.Context) {
 	}
 }
 
+func SendFormcResultToKafkaTest(c *gin.Context) {
+	err := SendFormcResultStreamProcessingRequestTest()
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusOK, "Test success")
+	}
+}
+
 func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcImageVisionResponse, error) {
 	formcImageVisionRequest := forms.FormcImageVisionRequest{
 		IdImageList:  form.IdImageList,

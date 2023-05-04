@@ -67,6 +67,9 @@ func NewRouter() *gin.Engine {
 	// TPS
 	router.GET("/tps/:id_tps", tps.GetTpsDetail)
 
+	// External Component Test
+	router.POST("/kafka/send-results", controllers.SendFormcResultToKafkaTest)
+
 	// router.Use(middlewares.AuthMiddleware())
 
 	// v1 := router.Group("v1")
