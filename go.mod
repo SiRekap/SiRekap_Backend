@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/storage v1.29.0
 	github.com/Shopify/sarama v1.38.1
 	github.com/gin-gonic/gin v1.7.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/signintech/gopdf v0.16.1
 	github.com/spf13/viper v1.7.0
 	gorm.io/driver/postgres v1.4.8

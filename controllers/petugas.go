@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"sirekap/SiRekap_Backend/forms"
+	"sirekap/SiRekap_Backend/middlewares"
 	"sirekap/SiRekap_Backend/models"
 	"strconv"
 
@@ -28,6 +30,33 @@ func (p PetugasController) RegisterPetugas(c *gin.Context) {
 		return
 	} else {
 		c.JSON(http.StatusOK, petugasTps)
+	}
+}
+
+func (p PetugasController) LoginPetugas(c *gin.Context) {
+	var loginData forms.PetugasLoginData
+
+	if err := c.BindJSON(&loginData); err != nil {
+		c.String(http.StatusBadRequest, "Data is not complete!")
+		return
+	}
+
+	fmt.Println("Berhasil")
+
+	petugasTps, err := petugasTpsModel.LoginPetugas(loginData)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	fmt.Println(petugasTps.Email)
+
+	tokenString, err := middlewares.Sign(petugasTps.Email)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"token": tokenString})
 	}
 }
 

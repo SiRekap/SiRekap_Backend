@@ -7,6 +7,11 @@ type PetugasRegisterData struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type PetugasLoginData struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 type PemeriksaRegisterData struct {
 	Nama           string `json:"nama" binding:"required"`
 	Nik            string `json:"nik" binding:"required"`

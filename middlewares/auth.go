@@ -1,30 +1,56 @@
 package middlewares
 
-// import (
-// 	"strings"
+import (
+	"fmt"
+	"net/http"
+	"strings"
 
-// 	"github.com/gin-gonic/gin"
-// 	"sirekap/SiRekap_Backend/config"
-// )
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
+)
 
-// func AuthMiddleware() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		config := config.GetConfig()
-// 		reqKey := c.Request.Header.Get("X-Auth-Key")
-// 		reqSecret := c.Request.Header.Get("X-Auth-Secret")
+const hmacSecret = "sirekap-2024"
 
-// 		var key string
-// 		var secret string
-// 		if key = config.GetString("http.auth.key"); len(strings.TrimSpace(key)) == 0 {
-// 			c.AbortWithStatus(500)
-// 		}
-// 		if secret = config.GetString("http.auth.secret"); len(strings.TrimSpace(secret)) == 0 {
-// 			c.AbortWithStatus(401)
-// 		}
-// 		if key != reqKey || secret != reqSecret {
-// 			c.AbortWithStatus(401)
-// 			return
-// 		}
-// 		c.Next()
-// 	}
-// }
+func Sign(email string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"email": email,
+	})
+
+	tokenString, err := token.SignedString([]byte(hmacSecret))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+func Validate() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		bearerString := c.Request.Header.Get("Authorization")
+		if bearerString == "" {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		split := strings.Split(bearerString, " ")
+		tokenString := split[1]
+
+		token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
+			return hmacSecret, nil
+		})
+
+		if token == nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		if _, ok := token.Claims.(jwt.MapClaims); !ok || token.Valid {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		} else {
+			c.Next()
+		}
+	}
+}

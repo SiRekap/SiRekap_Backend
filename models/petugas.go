@@ -55,12 +55,35 @@ func (p PetugasTps) RegisterPetugas(userRegisterData forms.PetugasRegisterData) 
 	return &petugasTps, nil
 }
 
+func (p PetugasTps) LoginPetugas(loginData forms.PetugasLoginData) (PetugasTps, error) {
+	petugasTps, err := p.GetByEmailAndPassword(loginData.Email, loginData.Password)
+	if err != nil {
+		return PetugasTps{}, err
+	}
+
+	return petugasTps, nil
+}
+
 func (p PetugasTps) GetByEmail(email string) (PetugasTps, error) {
 	db := db.GetDB()
 
 	petugasTps := PetugasTps{}
 
 	result := db.Where("email = ?", email).First(&petugasTps)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return PetugasTps{}, result.Error
+	}
+
+	return petugasTps, nil
+}
+
+func (p PetugasTps) GetByEmailAndPassword(email string, password string) (PetugasTps, error) {
+	db := db.GetDB()
+
+	petugasTps := PetugasTps{}
+
+	result := db.Where("email = ? AND password = ?", email, password).First(&petugasTps)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return PetugasTps{}, result.Error
