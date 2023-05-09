@@ -6,7 +6,6 @@ import (
 	"os"
 	"sirekap/SiRekap_Backend/config"
 	"sirekap/SiRekap_Backend/db"
-	"sirekap/SiRekap_Backend/migrations"
 	"sirekap/SiRekap_Backend/notifications"
 	"sirekap/SiRekap_Backend/server"
 )
@@ -22,7 +21,7 @@ func main() {
 
 	db.Init()
 	notifications.Init()
-	migrations.Migrate()
+	// migrations.Migrate()
 	server.Init()
 
 	// controllers.SendFormcResultStreamProcessingRequestTest()
