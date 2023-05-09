@@ -7,10 +7,10 @@ import (
 type (
 	FormcKesesuaian struct {
 		IdImage         int    `json:"id_image" binding:"required" gorm:"primaryKey"`
-		IdPemeriksa     string `json:"id_pemeriksa" binding:"required" gorm:"primaryKey"`
+		IdPetugas       int    `json:"id_petugas" binding:"required" gorm:"primaryKey"`
 		IsSesuai        bool   `json:"is_sesuai" binding:"required"`
 		Komentar        string `json:"komentar" binding:"required"`
-		IsSesuaiPerItem bool   `json:"is_sesuai_per_item" binding:"required"`
+		IsSesuaiPerItem []bool `json:"is_sesuai_per_item" binding:"required"`
 		KoreksiPerItem  []int  `json:"koreksi_per_item" binding:"required"`
 	}
 )

@@ -8,28 +8,30 @@ import (
 func Migrate() {
 	db := db.GetDB()
 
-	db.AutoMigrate(&models.FormcAdministrasiHlmSatuProses{})
-	db.AutoMigrate(&models.FormcAdministrasiHlmSatuFinal{})
-	db.AutoMigrate(&models.FormcAdministrasiHlmDuaProses{})
-	db.AutoMigrate(&models.FormcAdministrasiHlmDuaFinal{})
+	// db.AutoMigrate(&models.FormcAdministrasiHlmSatuProses{})
+	// db.AutoMigrate(&models.FormcAdministrasiHlmSatuFinal{})
+	// db.AutoMigrate(&models.FormcAdministrasiHlmDuaProses{})
+	// db.AutoMigrate(&models.FormcAdministrasiHlmDuaFinal{})
 
-	db.AutoMigrate(&models.FormcImage{})
-	db.AutoMigrate(&models.FormcImagePayload{})
-	db.AutoMigrate(&models.FormcStatusData{})
-	db.AutoMigrate(&models.FormcStatusImage{})
-	db.AutoMigrate(&models.FormcImageGroup{})
+	// db.AutoMigrate(&models.FormcImage{})
+	// db.AutoMigrate(&models.FormcImagePayload{})
+	// db.AutoMigrate(&models.FormcStatusData{})
+	// db.AutoMigrate(&models.FormcStatusImage{})
+	// db.AutoMigrate(&models.FormcImageGroup{})
+
+	// db.AutoMigrate(&models.FormcResult{})
 
 	db.AutoMigrate(&models.FormcKesesuaian{})
 
-	db.AutoMigrate(&models.Paslon{})
+	// db.AutoMigrate(&models.Paslon{})
 
-	db.AutoMigrate(&models.PetugasTps{})
-	db.AutoMigrate(&models.Pemeriksa{})
+	// db.AutoMigrate(&models.PetugasTps{})
+	// db.AutoMigrate(&models.Pemeriksa{})
 
-	db.AutoMigrate(&models.SuaraCFinal{})
-	db.AutoMigrate(&models.SuaraCProses{})
+	// db.AutoMigrate(&models.SuaraCFinal{})
+	// db.AutoMigrate(&models.SuaraCProses{})
 
-	db.AutoMigrate(&models.Tps{})
+	// db.AutoMigrate(&models.Tps{})
 
-	db.AutoMigrate(&models.Wilayah{})
+	// db.AutoMigrate(&models.Wilayah{})
 }
