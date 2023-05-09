@@ -7,8 +7,10 @@ require (
 	github.com/Shopify/sarama v1.38.1
 	github.com/gin-gonic/gin v1.7.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/google/martian v2.1.0+incompatible
 	github.com/signintech/gopdf v0.16.1
 	github.com/spf13/viper v1.7.0
+	google.golang.org/api v0.114.0
 	gorm.io/driver/postgres v1.4.8
 	gorm.io/gorm v1.24.2
 )
@@ -17,7 +19,10 @@ require (
 	cloud.google.com/go v0.110.0 // indirect
 	cloud.google.com/go/compute v1.19.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	cloud.google.com/go/firestore v1.9.0 // indirect
 	cloud.google.com/go/iam v0.13.0 // indirect
+	cloud.google.com/go/longrunning v0.4.1 // indirect
+	firebase.google.com/go v3.13.0+incompatible
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/eapache/go-resiliency v1.3.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20230111030713-bf00bc1b83b6 // indirect
@@ -73,10 +78,11 @@ require (
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.6.0 // indirect
+	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
+	golang.org/x/time v0.1.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
-	google.golang.org/api v0.114.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230331144136-dcfb400f0633 // indirect
 	google.golang.org/grpc v1.54.0 // indirect

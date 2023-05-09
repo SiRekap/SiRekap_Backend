@@ -11,8 +11,9 @@ import (
 
 const hmacSecret = "sirekap-2024"
 
-func Sign(email string) (string, error) {
+func Sign(idPetugas int, email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":    idPetugas,
 		"email": email,
 	})
 
@@ -33,24 +34,30 @@ func Validate() gin.HandlerFunc {
 		}
 
 		split := strings.Split(bearerString, " ")
-		tokenString := split[1]
+		if len(split) > 1 {
+			tokenString := split[1]
 
-		token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+				}
+				return hmacSecret, nil
+			})
+
+			if token == nil {
+				c.AbortWithStatus(http.StatusUnauthorized)
+				return
 			}
-			return hmacSecret, nil
-		})
 
-		if token == nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		if _, ok := token.Claims.(jwt.MapClaims); !ok || token.Valid {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			if claims, ok := token.Claims.(jwt.MapClaims); !ok || token.Valid {
+				c.AbortWithStatus(http.StatusUnauthorized)
+			} else {
+				c.Set("id", claims["id"])
+				c.Set("email", claims["email"])
+				c.Next()
+			}
 		} else {
-			c.Next()
+			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 	}
 }

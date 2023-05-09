@@ -41,8 +41,6 @@ func (p PetugasController) LoginPetugas(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Berhasil")
-
 	petugasTps, err := petugasTpsModel.LoginPetugas(loginData)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
@@ -51,7 +49,7 @@ func (p PetugasController) LoginPetugas(c *gin.Context) {
 
 	fmt.Println(petugasTps.Email)
 
-	tokenString, err := middlewares.Sign(petugasTps.Email)
+	tokenString, err := middlewares.Sign(petugasTps.IdPetugas, petugasTps.Email)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -69,6 +67,28 @@ func (p PetugasController) RegisterPemeriksa(c *gin.Context) {
 	}
 
 	petugasTps, err := pemeriksaModel.RegisterPemeriksa(pemeriksaRegisterData)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusOK, petugasTps)
+	}
+}
+
+func (p PetugasController) GetPetugasTpsMe(c *gin.Context) {
+
+	idPetugas, isSet := c.Get("id")
+	if !isSet {
+		c.String(http.StatusUnauthorized, "user unauthorized")
+	}
+
+	integerIdPetugas, err := strconv.Atoi(fmt.Sprintf("%v", idPetugas))
+	if err != nil {
+		c.String(http.StatusBadRequest, "Id Petugas is not valid!")
+		return
+	}
+
+	petugasTps, err := pemeriksaModel.GetPetugasTpsByIdPetugas(integerIdPetugas)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return

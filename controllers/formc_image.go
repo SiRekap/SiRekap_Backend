@@ -12,6 +12,7 @@ import (
 	"os"
 	"sirekap/SiRekap_Backend/forms"
 	"sirekap/SiRekap_Backend/models"
+	"sirekap/SiRekap_Backend/notifications"
 	"strconv"
 	"sync"
 	"time"
@@ -81,6 +82,8 @@ func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
 		return
 	}
 
+	// c.JSON(http.StatusOK, "Form C has been sent, please wait for notification from firebase")
+
 	// Penyimpanan url dan informasi gambar
 	form, err := models.SendFormcImageRaw(formcImageRaw)
 	if err != nil {
@@ -119,9 +122,21 @@ func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
 		}
 	}()
 
+	// Pengiriman hasil pemindaian ke tabel formc_result secara asynchronous
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err = SendFormcResultByVisionResponse(formcImageVisionResponse)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+	}()
+
 	wg.Wait()
 
-	c.JSON(http.StatusOK, "Form C has been successfully delivered and recapitulated")
+	c.JSON(http.StatusOK, "Form C result has been saved to database and delivered to stream processor")
+	// SendPushNotification(formcImageVisionResponse, formcImageRaw)
 }
 
 func (f FormcImageController) SendFormcStatusData(c *gin.Context) {
@@ -515,6 +530,42 @@ func (f FormcImageController) GetFormcImageGroupByIdTpsAndJenisPemilihan(c *gin.
 	}
 }
 
+func SendFormcResultByVisionResponse(form forms.FormcImageVisionResponse) error {
+	var formcImageModel models.FormcImage
+
+	for i := 0; i < len(form.IdPaslonList); i++ {
+		formcImage, err := formcImageModel.GetFormcImage(form.IdImageList[i])
+		if err != nil {
+			return err
+		}
+
+		tps, err := models.GetTpsById(formcImage.IdTps)
+		if err != nil {
+			return err
+		}
+
+		fullWilayahIdList, err := models.GetFullWilayahIdList(tps.IdWilayahDasar)
+
+		formcResult := models.FormcResult{
+			IdTps:           formcImage.IdTps,
+			IdKelurahan:     fullWilayahIdList.IdKelurahan,
+			IdKecamatan:     fullWilayahIdList.IdKecamatan,
+			IdKabupatenKota: fullWilayahIdList.IdKabupatenKota,
+			IdProvinsi:      fullWilayahIdList.IdProvinsi,
+			IdPaslon:        form.IdPaslonList[i],
+			JmlSuara:        form.JmlSuaraOcrList[i],
+			JenisPemilihan:  formcImage.JenisPemilihan,
+		}
+
+		_, err = models.SendFormcResult(formcResult)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func SendFormcResultStreamProcessingRequest(form forms.FormcImageVisionResponse) error {
 	var formcImageModel models.FormcImage
 
@@ -652,4 +703,70 @@ func ConnectProducer(brokersUrl []string) (sarama.SyncProducer, error) {
 		return nil, err
 	}
 	return conn, nil
+}
+
+func SendPushNotification(formcImageVisionResponse forms.FormcImageVisionResponse, formcImageRaw forms.FormcImageRaw) error {
+	pdfFileName := "kesesuaian-" + strconv.Itoa(formcImageVisionResponse.IdImageList[0]+formcImageVisionResponse.IdImageList[1]+formcImageVisionResponse.IdImageList[2]) + ".pdf"
+
+	formcScanNotificationResponse := forms.FormcScanNotificationResponse{
+		PemilihDptL:    formcImageVisionResponse.PemilihDptL,
+		PemilihDptP:    formcImageVisionResponse.PemilihDptP,
+		PemilihDptJ:    formcImageVisionResponse.PemilihDptJ,
+		PemilihDpphL:   formcImageVisionResponse.PemilihDpphL,
+		PemilihDpphP:   formcImageVisionResponse.PemilihDpphP,
+		PemilihDpphJ:   formcImageVisionResponse.PemilihDpphJ,
+		PemilihDptbL:   formcImageVisionResponse.PemilihDptbL,
+		PemilihDptbP:   formcImageVisionResponse.PemilihDptbP,
+		PemilihDptbJ:   formcImageVisionResponse.PemilihDptbJ,
+		PemilihTotalL:  formcImageVisionResponse.PemilihTotalL,
+		PemilihTotalP:  formcImageVisionResponse.PemilihTotalP,
+		PemilihTotalJ:  formcImageVisionResponse.PemilihTotalJ,
+		PenggunaDptL:   formcImageVisionResponse.PenggunaDptL,
+		PenggunaDptP:   formcImageVisionResponse.PenggunaDptP,
+		PenggunaDptJ:   formcImageVisionResponse.PenggunaDptJ,
+		PenggunaDpphL:  formcImageVisionResponse.PenggunaDpphL,
+		PenggunaDpphP:  formcImageVisionResponse.PenggunaDpphP,
+		PenggunaDpphJ:  formcImageVisionResponse.PenggunaDpphJ,
+		PenggunaDptbL:  formcImageVisionResponse.PenggunaDptbL,
+		PenggunaDptbP:  formcImageVisionResponse.PenggunaDptbP,
+		PenggunaDptbJ:  formcImageVisionResponse.PenggunaDptbJ,
+		PenggunaTotalL: formcImageVisionResponse.PenggunaTotalL,
+		PenggunaTotalP: formcImageVisionResponse.PenggunaTotalP,
+		PenggunaTotalJ: formcImageVisionResponse.PenggunaTotalJ,
+
+		PemilihDisabilitasL:  formcImageVisionResponse.PemilihDisabilitasL,
+		PemilihDisabilitasP:  formcImageVisionResponse.PemilihDisabilitasP,
+		PemilihDisabilitasJ:  formcImageVisionResponse.PemilihDisabilitasJ,
+		PenggunaDisabilitasL: formcImageVisionResponse.PenggunaDisabilitasL,
+		PenggunaDisabilitasP: formcImageVisionResponse.PenggunaDisabilitasP,
+		PenggunaDisabilitasJ: formcImageVisionResponse.PenggunaDisabilitasJ,
+
+		SuratDiterima:       formcImageVisionResponse.SuratDiterima,
+		SuratDikembalikan:   formcImageVisionResponse.SuratDikembalikan,
+		SuratTidakDigunakan: formcImageVisionResponse.SuratTidakDigunakan,
+		SuratDigunakan:      formcImageVisionResponse.SuratDigunakan,
+
+		SuaraSah:            formcImageVisionResponse.SuaraSah,
+		SuaraTidakSah:       formcImageVisionResponse.SuaraTidakSah,
+		SuaraTotal:          formcImageVisionResponse.SuaraTotal,
+		PenggunaHakPilih:    formcImageVisionResponse.PenggunaHakPilih,
+		SuratSuaraDigunakan: formcImageVisionResponse.SuratSuaraDigunakan,
+
+		JmlSuaraOcrList: formcImageVisionResponse.JmlSuaraOcrList,
+		JmlSuaraOmrList: formcImageVisionResponse.JmlSuaraOmrList,
+
+		IdTps:          formcImageRaw.IdTps,
+		JenisPemilihan: formcImageRaw.JenisPemilihan,
+		PayloadList:    formcImageRaw.PayloadList,
+		IdPaslonList:   formcImageRaw.IdPaslonList,
+		IdImageList:    formcImageVisionResponse.IdImageList,
+		PdfUrl:         "https://storage.googleapis.com/staging-sirekap-form/pdf/" + pdfFileName,
+	}
+
+	err := notifications.SendToToken("", formcScanNotificationResponse)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -38,6 +38,7 @@ func NewRouter() *gin.Engine {
 	v1.POST("/formc-kesesuaian/send-formc-kesesuaian", formcKesesuaian.SendFormCKesesuaian)
 
 	// Petugas
+	v1.GET("/petugas/me", petugas.GetPetugasTpsMe)
 	v1.GET("/petugas/:id_petugas", petugas.GetPetugasTpsByIdPetugas)
 	v1.GET("/petugas/all-pemeriksa", petugas.GetAllPemeriksaByTpsAndJenisPemilihan)
 

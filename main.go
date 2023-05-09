@@ -6,6 +6,7 @@ import (
 	"os"
 	"sirekap/SiRekap_Backend/config"
 	"sirekap/SiRekap_Backend/db"
+	"sirekap/SiRekap_Backend/notifications"
 	"sirekap/SiRekap_Backend/server"
 )
 
@@ -19,6 +20,7 @@ func main() {
 	config.Init(*environment)
 
 	db.Init()
+	notifications.Init()
 	// migrations.Migrate()
 	server.Init()
 
