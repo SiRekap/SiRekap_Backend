@@ -225,163 +225,194 @@ func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcI
 
 func SaveVisionResultToDatabase(form forms.FormcImageVisionResponse) error {
 
-	formcAdministrasiHlmSatuProses := models.FormcAdministrasiHlmSatuProses{
-		IdImage: form.IdImageList[0],
+	var wg sync.WaitGroup
 
-		PemilihDptL:    form.PemilihDptL,
-		PemilihDptP:    form.PemilihDptP,
-		PemilihDptJ:    form.PemilihDptJ,
-		PemilihDpphL:   form.PemilihDpphL,
-		PemilihDpphP:   form.PemilihDpphP,
-		PemilihDpphJ:   form.PemilihDpphJ,
-		PemilihDptbL:   form.PemilihDptbL,
-		PemilihDptbP:   form.PemilihDptbP,
-		PemilihDptbJ:   form.PemilihDptbJ,
-		PemilihTotalL:  form.PemilihTotalL,
-		PemilihTotalP:  form.PemilihTotalP,
-		PemilihTotalJ:  form.PemilihTotalJ,
-		PenggunaDptL:   form.PenggunaDptL,
-		PenggunaDptP:   form.PenggunaDptP,
-		PenggunaDptJ:   form.PenggunaDptJ,
-		PenggunaDpphL:  form.PenggunaDpphL,
-		PenggunaDpphP:  form.PenggunaDpphP,
-		PenggunaDpphJ:  form.PenggunaDpphJ,
-		PenggunaDptbL:  form.PenggunaDptbL,
-		PenggunaDptbP:  form.PenggunaDptbP,
-		PenggunaDptbJ:  form.PenggunaDptbJ,
-		PenggunaTotalL: form.PenggunaTotalL,
-		PenggunaTotalP: form.PenggunaTotalP,
-		PenggunaTotalJ: form.PenggunaTotalJ,
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		formcAdministrasiHlmSatuProses := models.FormcAdministrasiHlmSatuProses{
+			IdImage: form.IdImageList[0],
 
-		PemilihDisabilitasL:  form.PemilihDisabilitasL,
-		PemilihDisabilitasP:  form.PemilihDisabilitasP,
-		PemilihDisabilitasJ:  form.PemilihDisabilitasJ,
-		PenggunaDisabilitasL: form.PenggunaDisabilitasL,
-		PenggunaDisabilitasP: form.PenggunaDisabilitasP,
-		PenggunaDisabilitasJ: form.PenggunaDisabilitasJ,
+			PemilihDptL:    form.PemilihDptL,
+			PemilihDptP:    form.PemilihDptP,
+			PemilihDptJ:    form.PemilihDptJ,
+			PemilihDpphL:   form.PemilihDpphL,
+			PemilihDpphP:   form.PemilihDpphP,
+			PemilihDpphJ:   form.PemilihDpphJ,
+			PemilihDptbL:   form.PemilihDptbL,
+			PemilihDptbP:   form.PemilihDptbP,
+			PemilihDptbJ:   form.PemilihDptbJ,
+			PemilihTotalL:  form.PemilihTotalL,
+			PemilihTotalP:  form.PemilihTotalP,
+			PemilihTotalJ:  form.PemilihTotalJ,
+			PenggunaDptL:   form.PenggunaDptL,
+			PenggunaDptP:   form.PenggunaDptP,
+			PenggunaDptJ:   form.PenggunaDptJ,
+			PenggunaDpphL:  form.PenggunaDpphL,
+			PenggunaDpphP:  form.PenggunaDpphP,
+			PenggunaDpphJ:  form.PenggunaDpphJ,
+			PenggunaDptbL:  form.PenggunaDptbL,
+			PenggunaDptbP:  form.PenggunaDptbP,
+			PenggunaDptbJ:  form.PenggunaDptbJ,
+			PenggunaTotalL: form.PenggunaTotalL,
+			PenggunaTotalP: form.PenggunaTotalP,
+			PenggunaTotalJ: form.PenggunaTotalJ,
 
-		SuratDiterima:       form.SuratDiterima,
-		SuratDikembalikan:   form.SuratDikembalikan,
-		SuratTidakDigunakan: form.SuratTidakDigunakan,
-		SuratDigunakan:      form.SuratDigunakan,
-	}
+			PemilihDisabilitasL:  form.PemilihDisabilitasL,
+			PemilihDisabilitasP:  form.PemilihDisabilitasP,
+			PemilihDisabilitasJ:  form.PemilihDisabilitasJ,
+			PenggunaDisabilitasL: form.PenggunaDisabilitasL,
+			PenggunaDisabilitasP: form.PenggunaDisabilitasP,
+			PenggunaDisabilitasJ: form.PenggunaDisabilitasJ,
 
-	_, err := models.SendFormcAdministrasiHlmSatuProses(formcAdministrasiHlmSatuProses)
-	if err != nil {
-		return err
-	}
-
-	formcAdministrasiHlmSatuFinal := models.FormcAdministrasiHlmSatuFinal{
-		IdImage: form.IdImageList[0],
-		IsBenar: true,
-	}
-
-	_, err = models.SendFormcAdministrasiHlmSatuFinal(formcAdministrasiHlmSatuFinal)
-	if err != nil {
-		return err
-	}
-
-	formcAdministrasiHlmDuaProses := models.FormcAdministrasiHlmDuaProses{
-		IdImage: form.IdImageList[1],
-
-		SuaraSah:            form.SuaraSah,
-		SuaraTidakSah:       form.SuaraTidakSah,
-		SuaraTotal:          form.SuaraTotal,
-		PenggunaHakPilih:    form.PenggunaHakPilih,
-		SuratSuaraDigunakan: form.SuratSuaraDigunakan,
-	}
-
-	_, err = models.SendFormcAdministrasiHlmDuaProses(formcAdministrasiHlmDuaProses)
-	if err != nil {
-		return err
-	}
-
-	formcAdministrasiHlmDuaFinal := models.FormcAdministrasiHlmDuaFinal{
-		IdImage: form.IdImageList[1],
-		IsBenar: true,
-	}
-
-	_, err = models.SendFormcAdministrasiHlmDuaFinal(formcAdministrasiHlmDuaFinal)
-	if err != nil {
-		return err
-	}
-
-	var formcImageModel models.FormcImage
-	formcImage, err := formcImageModel.GetFormcImage(form.IdImageList[0])
-	if err != nil {
-		return err
-	}
-
-	formcImagePayloadModel := models.FormcImagePayload{}
-
-	formcImagePayload, err := formcImagePayloadModel.GetFormcImagePayload(form.IdImageList[0])
-	if err != nil {
-		return err
-	}
-	img1Url := formcImagePayload.Payload
-
-	formcImagePayload, err = formcImagePayloadModel.GetFormcImagePayload(form.IdImageList[1])
-	if err != nil {
-		return err
-	}
-	img2Url := formcImagePayload.Payload
-
-	formcImagePayload, err = formcImagePayloadModel.GetFormcImagePayload(form.IdImageList[2])
-	if err != nil {
-		return err
-	}
-	img3Url := formcImagePayload.Payload
-
-	pdfFileName := "kesesuaian-" + strconv.Itoa(form.IdImageList[0]+form.IdImageList[1]+form.IdImageList[2]) + ".pdf"
-
-	err = GeneratePdfAndSendToBucket(img1Url, img2Url, img3Url, pdfFileName)
-	if err != nil {
-		panic(err)
-	}
-
-	err = DeleteGeneratedLocalFiles(pdfFileName)
-	if err != nil {
-		panic(err)
-	}
-
-	formcImageGroup := models.FormcImageGroup{
-		IdTps:          formcImage.IdTps,
-		JenisPemilihan: formcImage.JenisPemilihan,
-		IdImageHlm1:    form.IdImageList[0],
-		IdImageHlm2:    form.IdImageList[1],
-		IdImageHlm3:    form.IdImageList[2],
-		PdfUrl:         "https://storage.googleapis.com/staging-sirekap-form/pdf/" + pdfFileName,
-	}
-
-	_, err = formcImageGroup.SendFormcImageGroup()
-	if err != nil {
-		return err
-	}
-
-	for i := 0; i < len(form.IdPaslonList); i++ {
-		suaracProses := models.SuaraCProses{
-			IdImage:     form.IdImageList[2],
-			IdPaslon:    form.IdPaslonList[i],
-			JmlSuaraOcr: form.JmlSuaraOcrList[i],
-			JmlSuaraOmr: form.JmlSuaraOmrList[i],
+			SuratDiterima:       form.SuratDiterima,
+			SuratDikembalikan:   form.SuratDikembalikan,
+			SuratTidakDigunakan: form.SuratTidakDigunakan,
+			SuratDigunakan:      form.SuratDigunakan,
 		}
 
-		_, err = models.SendSuaraCProses(suaracProses)
+		_, err := models.SendFormcAdministrasiHlmSatuProses(formcAdministrasiHlmSatuProses)
 		if err != nil {
-			return err
+			panic(err)
+			return
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		formcAdministrasiHlmSatuFinal := models.FormcAdministrasiHlmSatuFinal{
+			IdImage: form.IdImageList[0],
+			IsBenar: true,
 		}
 
-		suaracFinal := models.SuaraCFinal{
-			IdImage:  form.IdImageList[2],
-			IdPaslon: form.IdPaslonList[i],
-			JmlSuara: form.JmlSuaraOcrList[i],
-		}
-
-		_, err = models.SendSuaraCFinal(suaracFinal)
+		_, err := models.SendFormcAdministrasiHlmSatuFinal(formcAdministrasiHlmSatuFinal)
 		if err != nil {
-			return err
+			panic(err)
+			return
 		}
-	}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		formcAdministrasiHlmDuaProses := models.FormcAdministrasiHlmDuaProses{
+			IdImage:             form.IdImageList[1],
+			SuaraSah:            form.SuaraSah,
+			SuaraTidakSah:       form.SuaraTidakSah,
+			SuaraTotal:          form.SuaraTotal,
+			PenggunaHakPilih:    form.PenggunaHakPilih,
+			SuratSuaraDigunakan: form.SuratSuaraDigunakan,
+		}
+
+		_, err := models.SendFormcAdministrasiHlmDuaProses(formcAdministrasiHlmDuaProses)
+		if err != nil {
+			panic(err)
+			return
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		formcAdministrasiHlmDuaFinal := models.FormcAdministrasiHlmDuaFinal{
+			IdImage: form.IdImageList[1],
+			IsBenar: true,
+		}
+
+		_, err := models.SendFormcAdministrasiHlmDuaFinal(formcAdministrasiHlmDuaFinal)
+		if err != nil {
+			panic(err)
+			return
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		var formcImageModel models.FormcImage
+		formcImage, err := formcImageModel.GetFormcImage(form.IdImageList[0])
+		if err != nil {
+			panic(err)
+		}
+
+		formcImagePayloadModel := models.FormcImagePayload{}
+
+		formcImagePayload, err := formcImagePayloadModel.GetFormcImagePayload(form.IdImageList[0])
+		if err != nil {
+			panic(err)
+		}
+		img1Url := formcImagePayload.Payload
+
+		formcImagePayload, err = formcImagePayloadModel.GetFormcImagePayload(form.IdImageList[1])
+		if err != nil {
+			panic(err)
+		}
+		img2Url := formcImagePayload.Payload
+
+		formcImagePayload, err = formcImagePayloadModel.GetFormcImagePayload(form.IdImageList[2])
+		if err != nil {
+			panic(err)
+		}
+		img3Url := formcImagePayload.Payload
+
+		pdfFileName := "kesesuaian-" + strconv.Itoa(form.IdImageList[0]+form.IdImageList[1]+form.IdImageList[2]) + ".pdf"
+
+		err = GeneratePdfAndSendToBucket(img1Url, img2Url, img3Url, pdfFileName)
+		if err != nil {
+			panic(err)
+		}
+
+		err = DeleteGeneratedLocalFiles(pdfFileName)
+		if err != nil {
+			panic(err)
+		}
+
+		formcImageGroup := models.FormcImageGroup{
+			IdTps:          formcImage.IdTps,
+			JenisPemilihan: formcImage.JenisPemilihan,
+			IdImageHlm1:    form.IdImageList[0],
+			IdImageHlm2:    form.IdImageList[1],
+			IdImageHlm3:    form.IdImageList[2],
+			PdfUrl:         "https://storage.googleapis.com/staging-sirekap-form/pdf/" + pdfFileName,
+		}
+
+		_, err = formcImageGroup.SendFormcImageGroup()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < len(form.IdPaslonList); i++ {
+			suaracProses := models.SuaraCProses{
+				IdImage:     form.IdImageList[2],
+				IdPaslon:    form.IdPaslonList[i],
+				JmlSuaraOcr: form.JmlSuaraOcrList[i],
+				JmlSuaraOmr: form.JmlSuaraOmrList[i],
+			}
+
+			_, err := models.SendSuaraCProses(suaracProses)
+			if err != nil {
+				panic(err)
+			}
+
+			suaracFinal := models.SuaraCFinal{
+				IdImage:  form.IdImageList[2],
+				IdPaslon: form.IdPaslonList[i],
+				JmlSuara: form.JmlSuaraOcrList[i],
+			}
+
+			_, err = models.SendSuaraCFinal(suaracFinal)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	wg.Wait()
 
 	return nil
 }
@@ -442,25 +473,45 @@ func GeneratePdfAndSendToBucket(img1url string, img2url string, img3url string, 
 
 func DeleteGeneratedLocalFiles(pdfFileName string) error {
 
-	err := os.Remove("img1url.jpg")
-	if err != nil {
-		return err
-	}
+	var wg sync.WaitGroup
 
-	err = os.Remove("img2url.jpg")
-	if err != nil {
-		return err
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := os.Remove("img1url.jpg")
+		if err != nil {
+			panic(err)
+		}
+	}()
 
-	err = os.Remove("img3url.jpg")
-	if err != nil {
-		return err
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := os.Remove("img2url.jpg")
+		if err != nil {
+			panic(err)
+		}
+	}()
 
-	err = os.Remove(pdfFileName)
-	if err != nil {
-		return err
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := os.Remove("img3url.jpg")
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := os.Remove(pdfFileName)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	wg.Wait()
 
 	return nil
 }
