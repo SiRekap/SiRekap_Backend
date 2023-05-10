@@ -81,7 +81,7 @@ type FormcResultStreamProcessingRequest struct {
 	JenisPemilihan  int `json:"jenis_pemilihan" binding:"required"`
 }
 
-type FormcScanNotificationResponse struct {
+type FormcScanResponse struct {
 	PemilihDptL   int `json:"pemilih_dpt_l" binding:"required"`
 	PemilihDptP   int `json:"pemilih_dpt_p" binding:"required"`
 	PemilihDptJ   int `json:"pemilih_dpt_j" binding:"required"`

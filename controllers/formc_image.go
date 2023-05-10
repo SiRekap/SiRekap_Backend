@@ -135,7 +135,10 @@ func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
 
 	wg.Wait()
 
-	c.JSON(http.StatusOK, "Form C result has been saved to database and delivered to stream processor")
+	response := GenerateScanResultResponse(formcImageVisionResponse, formcImageRaw)
+	c.JSON(http.StatusOK, response)
+
+	// c.JSON(http.StatusOK, "Form C result has been saved to database and delivered to stream processor")
 	// SendPushNotification(formcImageVisionResponse, formcImageRaw)
 }
 
@@ -705,10 +708,10 @@ func ConnectProducer(brokersUrl []string) (sarama.SyncProducer, error) {
 	return conn, nil
 }
 
-func SendPushNotification(formcImageVisionResponse forms.FormcImageVisionResponse, formcImageRaw forms.FormcImageRaw) error {
+func GenerateScanResultResponse(formcImageVisionResponse forms.FormcImageVisionResponse, formcImageRaw forms.FormcImageRaw) forms.FormcScanResponse {
 	pdfFileName := "kesesuaian-" + strconv.Itoa(formcImageVisionResponse.IdImageList[0]+formcImageVisionResponse.IdImageList[1]+formcImageVisionResponse.IdImageList[2]) + ".pdf"
 
-	formcScanNotificationResponse := forms.FormcScanNotificationResponse{
+	formcScanNotificationResponse := forms.FormcScanResponse{
 		PemilihDptL:    formcImageVisionResponse.PemilihDptL,
 		PemilihDptP:    formcImageVisionResponse.PemilihDptP,
 		PemilihDptJ:    formcImageVisionResponse.PemilihDptJ,
@@ -762,6 +765,12 @@ func SendPushNotification(formcImageVisionResponse forms.FormcImageVisionRespons
 		IdImageList:    formcImageVisionResponse.IdImageList,
 		PdfUrl:         "https://storage.googleapis.com/staging-sirekap-form/pdf/" + pdfFileName,
 	}
+
+	return formcScanNotificationResponse
+}
+
+func SendPushNotification(formcImageVisionResponse forms.FormcImageVisionResponse, formcImageRaw forms.FormcImageRaw) error {
+	formcScanNotificationResponse := GenerateScanResultResponse(formcImageVisionResponse, formcImageRaw)
 
 	err := notifications.SendToToken("", formcScanNotificationResponse)
 	if err != nil {

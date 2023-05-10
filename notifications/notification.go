@@ -32,7 +32,7 @@ func Init() {
 	app = firebaseApp
 }
 
-func SendToToken(registrationToken string, form forms.FormcScanNotificationResponse) error {
+func SendToToken(registrationToken string, form forms.FormcScanResponse) error {
 	ctx := context.Background()
 	client, err := app.Messaging(ctx)
 	if err != nil {
