@@ -93,8 +93,8 @@ func (f FormcImageController) SendFormcImageRaw(c *gin.Context) {
 
 	// Pengiriman gambar untuk dipindai ke sistem vision
 	formcImageVisionResponse, err := SendFormcImageVisionRequest(form)
-	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
+	if err != nil || formcImageVisionResponse.Error != "" {
+		c.String(http.StatusBadRequest, formcImageVisionResponse.Error)
 		return
 	}
 

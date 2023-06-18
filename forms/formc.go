@@ -68,6 +68,8 @@ type FormcImageVisionResponse struct {
 
 	IdImageList  []int `json:"IdImageList" binding:"required"`
 	IdPaslonList []int `json:"IdPaslonList" binding:"required"`
+
+	Error string `json:"error"`
 }
 
 type FormcResultStreamProcessingRequest struct {
