@@ -193,7 +193,7 @@ func SendFormcImageVisionRequest(form forms.FormcImageRawResponse) (forms.FormcI
 		IdPaslonList: form.FormcImageRaw.IdPaslonList,
 	}
 
-	requestURL := "http://35.184.140.99/v1/read"
+	requestURL := "https://ee80-114-10-71-118.ngrok-free.app/v1/read"
 	jsonBody, err := json.Marshal(formcImageVisionRequest)
 	if err != nil {
 		return forms.FormcImageVisionResponse{}, err
