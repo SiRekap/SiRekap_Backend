@@ -70,6 +70,8 @@ type FormcImageVisionResponse struct {
 	IdPaslonList []int `json:"IdPaslonList" binding:"required"`
 
 	Error string `json:"error"`
+
+	PageNumbers []int `json:"page_numbers" binding:"required"`
 }
 
 type FormcResultStreamProcessingRequest struct {
@@ -137,4 +139,6 @@ type FormcScanResponse struct {
 	IdPaslonList   []int    `json:"id_paslon_list" binding:"required"`
 	IdImageList    []int    `json:"IdImageList" binding:"required"`
 	PdfUrl         string   `json:"pdf_url" binding:"required"`
+
+	PageNumbers []int `json:"page_numbers" binding:"required"`
 }

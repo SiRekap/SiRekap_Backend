@@ -815,6 +815,8 @@ func GenerateScanResultResponse(formcImageVisionResponse forms.FormcImageVisionR
 		IdPaslonList:   formcImageRaw.IdPaslonList,
 		IdImageList:    formcImageVisionResponse.IdImageList,
 		PdfUrl:         "https://storage.googleapis.com/staging-sirekap-form/pdf/" + pdfFileName,
+
+		PageNumbers: formcImageVisionResponse.PageNumbers,
 	}
 
 	return formcScanNotificationResponse
